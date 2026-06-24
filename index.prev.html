@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cannes Lions 2026 Agency Exchange</title>
+  <meta name="description" content="A minimal market-style Cannes Lions 2026 agency leaderboard." />
+  <style>
+    :root{
+      --bg:#f6f6f4;
+      --text:#141414;
+      --muted:#6f6f6a;
+      --line:#d7d7d2;
+      --line-soft:#e8e8e3;
+      --positive:#1a7f4e;
+      --gp-bg:#ead9af;
+      --gp-text:#77580f;
+      --gold-bg:#ecd8a7;
+      --gold-text:#785510;
+      --silver-bg:#e6e6e4;
+      --silver-text:#565656;
+      --bronze-bg:#eadbcc;
+      --bronze-text:#744521;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);letter-spacing:-.015em;font-size:12px}
+    button,input{font:inherit}
+    a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+    .wrap{width:min(1360px,calc(100vw - 64px));margin:0 auto}
+    .ticker{border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap}
+    .ticker-track{display:flex;gap:34px;width:max-content;padding:11px 0 9px;animation:ticker 42s linear infinite}
+    .ticker-item{display:inline-flex;align-items:baseline;gap:5px;font-size:12px;color:#42423f}
+    .ticker-item b{font-weight:650;color:#151515;letter-spacing:-.02em}
+    .ticker-item .value{font-weight:620;color:#151515}
+    .ticker-item .bonus{color:var(--positive)}
+    @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    header{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;padding:20px 0 14px}
+    h1{margin:0;font-size:15px;line-height:1.08;font-weight:650;letter-spacing:-.025em}
+    h1 span{font-weight:430;color:#4f4f4a}
+    .meta{margin-top:3px;font-size:11px;line-height:1.3;color:#44443f}
+    .market-note{text-align:right;font-size:11px;line-height:1.25;color:var(--muted);padding-bottom:1px}
+    .market-note strong{display:block;margin-top:3px;color:#141414;font-size:12px;font-weight:620}
+    .search{width:100%;height:38px;border:1px solid var(--line);border-radius:9px;background:transparent;padding:0 13px;font-size:13px;letter-spacing:-.015em;color:var(--text);outline:none}
+    .search::placeholder{color:#777773}
+    .sorts{display:flex;gap:8px;flex-wrap:wrap;margin:9px 0 15px}
+    .sort-button{height:34px;padding:0 13px;border:1px solid #b9b9b4;border-radius:9px;background:transparent;font-size:12px;letter-spacing:-.01em;color:#191917;cursor:pointer}
+    .sort-button.active{background:#141414;color:#fff;border-color:#141414}
+    .legend{display:flex;gap:17px;flex-wrap:wrap;align-items:center;margin:0 0 16px;font-size:11px;color:#3f3f3a}
+    .legend span{display:inline-flex;align-items:center;gap:7px}
+    .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+    .dot.gp{background:#cfa431}
+    .dot.gold{background:#c9a533}
+    .dot.silver{background:#a9a9a9}
+    .dot.bronze{background:#bf7c47}
+    .board{border-top:1px solid var(--line)}
+    .head,.row{display:grid;grid-template-columns:38px minmax(300px,1.7fr) 96px 124px minmax(230px,1fr);gap:12px;align-items:center}
+    .head{height:37px;color:#3d3d38;font-size:11px;font-weight:560;border-bottom:1px solid var(--line)}
+    .row{min-height:47px;border-bottom:1px solid var(--line);cursor:pointer}
+    .row:hover{background:rgba(0,0,0,.015)}
+    .rank{color:#6b6b66;font-size:11px;text-align:center}
+    .agency{font-size:12px;font-weight:650;letter-spacing:-.02em;text-transform:uppercase;line-height:1.1}
+    .num{font-size:12px;font-weight:650;letter-spacing:-.015em;text-align:right}
+    .bonus-cell{display:grid;grid-template-columns:42px 1fr;gap:8px;align-items:center;color:#33332f;font-size:12px;text-align:right}
+    .bonus-bar{height:7px;background:#c8c8c4;border-radius:999px;overflow:hidden}
+    .bonus-bar i{display:block;height:100%;border-radius:999px;background:var(--positive)}
+    .portfolio{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+    .pill{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:4px;font-size:10px;font-weight:650;letter-spacing:-.01em;white-space:nowrap}
+    .pill.gp{background:var(--gp-bg);color:var(--gp-text)}
+    .pill.gold{background:var(--gold-bg);color:var(--gold-text)}
+    .pill.silver{background:var(--silver-bg);color:var(--silver-text)}
+    .pill.bronze{background:var(--bronze-bg);color:var(--bronze-text)}
+    .detail{display:none;border-bottom:1px solid var(--line);padding:0 0 11px}
+    .detail.open{display:block}
+    .detail-inner{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;padding-left:50px;padding-right:0}
+    .stat{border:1px solid var(--line-soft);border-radius:8px;padding:9px 10px;min-height:54px}
+    .stat-label{font-size:9px;text-transform:uppercase;letter-spacing:.075em;color:var(--muted)}
+    .stat-value{font-size:12px;margin-top:8px;font-weight:650;letter-spacing:-.015em}
+    .empty{padding:28px 0;border-bottom:1px solid var(--line);color:var(--muted);font-size:12px;text-align:center}
+    footer{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;padding:18px 0 28px;border-top:1px solid var(--line);margin-top:20px;color:var(--muted);font-size:10px;line-height:1.35}
+    footer .right{text-align:right}
+    @media(max-width:980px){
+      .wrap{width:min(100vw - 24px,1360px)}
+      .head{display:none}
+      header,footer{display:block}
+      .market-note,.right{text-align:left!important;margin-top:8px}
+      .row{grid-template-columns:32px 1fr 72px;gap:8px;padding:10px 0;min-height:auto}
+      .bonus-cell,.portfolio{grid-column:2/-1}
+      .detail-inner{grid-template-columns:1fr 1fr;padding-left:0}
+    }
+  </style>
+</head>
+<body>
+  <div class="ticker"><div class="wrap"><div id="tickerTrack" class="ticker-track"></div></div></div>
+  <main class="wrap">
+    <header>
+      <div>
+        <h1>Cannes Lions 2026 <span>Agency Exchange</span></h1>
+        <div class="meta">Metal winners only · GP, Gold, Silver, Bronze · Data June 22, 2026</div>
+      </div>
+      <div class="market-note">Value<strong>Metal Points + Bonus</strong></div>
+    </header>
+    <input id="search" class="search" placeholder="Search agency…" autocomplete="off" />
+    <section class="sorts" aria-label="Sort modes">
+      <button class="sort-button active" data-sort="value">By Value</button>
+      <button class="sort-button" data-sort="efficiency">By Efficiency</button>
+    </section>
+    <section class="legend" aria-label="Medal legend">
+      <span><i class="dot gp"></i> GP = 100 pts</span>
+      <span><i class="dot gold"></i> Gold = 40 pts</span>
+      <span><i class="dot silver"></i> Silver = 15 pts</span>
+      <span><i class="dot bronze"></i> Bronze = 5 pts</span>
+      <span>Efficiency bonus adds up to 100 pts</span>
+    </section>
+    <section class="board" aria-label="Agency exchange board">
+      <div class="head"><div>#</div><div>Agency</div><div style="text-align:right">Value</div><div>Bonus</div><div>Portfolio</div></div>
+      <div id="rows"></div>
+    </section>
+  </main>
+  <footer class="wrap">
+    <div>Value = metal points + bonus. Efficiency can add up to 100 bonus points. Metal winners only.</div>
+    <div class="right">Source: <a href="https://cannes26tracker.netlify.app/" target="_blank" rel="noopener">cannes26tracker.netlify.app</a> · Data credit: Pablo Petovel.</div>
+  </footer>
+  <script>
+    const AGENCIES = [{"agency":"RETHINK","score":200,"medals":7,"trackedRows":7,"portfolio":{"gp":1,"gold":2,"silver":0,"bronze":4},"gp":1,"gold":2,"silver":0,"bronze":4,"price":229,"efficiency":28.6,"marketShare":7.42,"symbol":"RETHI","workCount":5,"conversion":100.0,"rank":1,"metalPoints":200,"efficiencyBonus":29,"metalValue":229,"value":229},{"agency":"GUT","score":195,"medals":8,"trackedRows":8,"portfolio":{"gp":1,"gold":0,"silver":6,"bronze":1},"gp":1,"gold":0,"silver":6,"bronze":1,"price":219,"efficiency":24.4,"marketShare":7.24,"symbol":"G","workCount":7,"conversion":100.0,"rank":2,"metalPoints":195,"efficiencyBonus":24,"metalValue":219,"value":219},{"agency":"DIFFER","score":140,"medals":2,"trackedRows":2,"portfolio":{"gp":1,"gold":1,"silver":0,"bronze":0},"gp":1,"gold":1,"silver":0,"bronze":0,"price":210,"efficiency":70.0,"marketShare":5.19,"symbol":"DIFFE","workCount":1,"conversion":100.0,"rank":3,"metalPoints":140,"efficiencyBonus":70,"metalValue":210,"value":210},{"agency":"ANHEUSER-BUSCH INBEV","score":100,"medals":1,"trackedRows":1,"portfolio":{"gp":1,"gold":0,"silver":0,"bronze":0},"gp":1,"gold":0,"silver":0,"bronze":0,"price":200,"efficiency":100.0,"marketShare":3.71,"symbol":"ANHEU","workCount":1,"conversion":100.0,"rank":4,"metalPoints":100,"efficiencyBonus":100,"metalValue":200,"value":200},{"agency":"BBDO PUERTO RICO","score":100,"medals":1,"trackedRows":1,"portfolio":{"gp":1,"gold":0,"silver":0,"bronze":0},"gp":1,"gold":0,"silver":0,"bronze":0,"price":200,"efficiency":100.0,"marketShare":3.71,"symbol":"BPR","workCount":1,"conversion":100.0,"rank":5,"metalPoints":100,"efficiencyBonus":100,"metalValue":200,"value":200},{"agency":"NORD","score":100,"medals":1,"trackedRows":1,"portfolio":{"gp":1,"gold":0,"silver":0,"bronze":0},"gp":1,"gold":0,"silver":0,"bronze":0,"price":200,"efficiency":100.0,"marketShare":3.71,"symbol":"N","workCount":1,"conversion":100.0,"rank":6,"metalPoints":100,"efficiencyBonus":100,"metalValue":200,"value":200},{"agency":"SMUGGLER","score":100,"medals":1,"trackedRows":1,"portfolio":{"gp":1,"gold":0,"silver":0,"bronze":0},"gp":1,"gold":0,"silver":0,"bronze":0,"price":200,"efficiency":100.0,"marketShare":3.71,"symbol":"SMUGG","workCount":1,"conversion":100.0,"rank":7,"metalPoints":100,"efficiencyBonus":100,"metalValue":200,"value":200},{"agency":"VML","score":185,"medals":12,"trackedRows":12,"portfolio":{"gp":0,"gold":3,"silver":2,"bronze":7},"gp":0,"gold":3,"silver":2,"bronze":7,"price":200,"efficiency":15.4,"marketShare":6.86,"symbol":"V","workCount":10,"conversion":100.0,"rank":8,"metalPoints":185,"efficiencyBonus":15,"metalValue":200,"value":200},{"agency":"FALLON","score":115,"medals":2,"trackedRows":2,"portfolio":{"gp":1,"gold":0,"silver":1,"bronze":0},"gp":1,"gold":0,"silver":1,"bronze":0,"price":173,"efficiency":57.5,"marketShare":4.27,"symbol":"FALLO","workCount":1,"conversion":100.0,"rank":9,"metalPoints":115,"efficiencyBonus":58,"metalValue":173,"value":173},{"agency":"BBH","score":120,"medals":3,"trackedRows":3,"portfolio":{"gp":0,"gold":3,"silver":0,"bronze":0},"gp":0,"gold":3,"silver":0,"bronze":0,"price":160,"efficiency":40.0,"marketShare":4.45,"symbol":"B","workCount":3,"conversion":100.0,"rank":10,"metalPoints":120,"efficiencyBonus":40,"metalValue":160,"value":160},{"agency":"LEO","score":130,"medals":5,"trackedRows":5,"portfolio":{"gp":0,"gold":3,"silver":0,"bronze":2},"gp":0,"gold":3,"silver":0,"bronze":2,"price":156,"efficiency":26.0,"marketShare":4.82,"symbol":"L","workCount":5,"conversion":100.0,"rank":11,"metalPoints":130,"efficiencyBonus":26,"metalValue":156,"value":156},{"agency":"LEPUB","score":130,"medals":8,"trackedRows":8,"portfolio":{"gp":0,"gold":2,"silver":2,"bronze":4},"gp":0,"gold":2,"silver":2,"bronze":4,"price":146,"efficiency":16.2,"marketShare":4.82,"symbol":"LEPUB","workCount":6,"conversion":100.0,"rank":12,"metalPoints":130,"efficiencyBonus":16,"metalValue":146,"value":146},{"agency":"PUBLICIS BRASIL","score":70,"medals":3,"trackedRows":3,"portfolio":{"gp":0,"gold":1,"silver":2,"bronze":0},"gp":0,"gold":1,"silver":2,"bronze":0,"price":93,"efficiency":23.3,"marketShare":2.6,"symbol":"PUBLI","workCount":2,"conversion":100.0,"rank":13,"metalPoints":70,"efficiencyBonus":23,"metalValue":93,"value":93},{"agency":"UNCOMMON CREATIVE STUDIO","score":75,"medals":7,"trackedRows":7,"portfolio":{"gp":0,"gold":0,"silver":4,"bronze":3},"gp":0,"gold":0,"silver":4,"bronze":3,"price":86,"efficiency":10.7,"marketShare":2.78,"symbol":"UNCOM","workCount":7,"conversion":100.0,"rank":14,"metalPoints":75,"efficiencyBonus":11,"metalValue":86,"value":86},{"agency":"OGILVY","score":70,"medals":5,"trackedRows":5,"portfolio":{"gp":0,"gold":1,"silver":1,"bronze":3},"gp":0,"gold":1,"silver":1,"bronze":3,"price":84,"efficiency":14.0,"marketShare":2.6,"symbol":"OGILV","workCount":5,"conversion":100.0,"rank":15,"metalPoints":70,"efficiencyBonus":14,"metalValue":84,"value":84},{"agency":"BETC","score":60,"medals":3,"trackedRows":3,"portfolio":{"gp":0,"gold":1,"silver":1,"bronze":1},"gp":0,"gold":1,"silver":1,"bronze":1,"price":80,"efficiency":20.0,"marketShare":2.23,"symbol":"B","workCount":2,"conversion":100.0,"rank":16,"metalPoints":60,"efficiencyBonus":20,"metalValue":80,"value":80},{"agency":"AFRICA CREATIVE","score":40,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"price":80,"efficiency":40.0,"marketShare":1.48,"symbol":"AFRIC","workCount":1,"conversion":100.0,"rank":17,"metalPoints":40,"efficiencyBonus":40,"metalValue":80,"value":80},{"agency":"LOLA","score":40,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"price":80,"efficiency":40.0,"marketShare":1.48,"symbol":"L","workCount":1,"conversion":100.0,"rank":18,"metalPoints":40,"efficiencyBonus":40,"metalValue":80,"value":80},{"agency":"TBWA\\CANADA","score":40,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"price":80,"efficiency":40.0,"marketShare":1.48,"symbol":"TC","workCount":1,"conversion":100.0,"rank":19,"metalPoints":40,"efficiencyBonus":40,"metalValue":80,"value":80},{"agency":"TBWA\\SYDNEY","score":40,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"price":80,"efficiency":40.0,"marketShare":1.48,"symbol":"TS","workCount":1,"conversion":100.0,"rank":20,"metalPoints":40,"efficiencyBonus":40,"metalValue":80,"value":80},{"agency":"DAVID","score":50,"medals":3,"trackedRows":3,"portfolio":{"gp":0,"gold":1,"silver":0,"bronze":2},"gp":0,"gold":1,"silver":0,"bronze":2,"price":67,"efficiency":16.7,"marketShare":1.86,"symbol":"DAVID","workCount":2,"conversion":100.0,"rank":21,"metalPoints":50,"efficiencyBonus":17,"metalValue":67,"value":67},{"agency":"MARCEL","score":45,"medals":2,"trackedRows":2,"portfolio":{"gp":0,"gold":1,"silver":0,"bronze":1},"gp":0,"gold":1,"silver":0,"bronze":1,"price":67,"efficiency":22.5,"marketShare":1.67,"symbol":"MARCE","workCount":1,"conversion":100.0,"rank":22,"metalPoints":45,"efficiencyBonus":22,"metalValue":67,"value":67},{"agency":"INGO","score":45,"medals":3,"trackedRows":3,"portfolio":{"gp":0,"gold":0,"silver":3,"bronze":0},"gp":0,"gold":0,"silver":3,"bronze":0,"price":60,"efficiency":15.0,"marketShare":1.67,"symbol":"I","workCount":3,"conversion":100.0,"rank":23,"metalPoints":45,"efficiencyBonus":15,"metalValue":60,"value":60},{"agency":"HAVAS PARIS","score":30,"medals":2,"trackedRows":2,"portfolio":{"gp":0,"gold":0,"silver":2,"bronze":0},"gp":0,"gold":0,"silver":2,"bronze":0,"price":45,"efficiency":15.0,"marketShare":1.11,"symbol":"HAVAS","workCount":1,"conversion":100.0,"rank":24,"metalPoints":30,"efficiencyBonus":15,"metalValue":45,"value":45},{"agency":"MOTHER","score":30,"medals":2,"trackedRows":2,"portfolio":{"gp":0,"gold":0,"silver":2,"bronze":0},"gp":0,"gold":0,"silver":2,"bronze":0,"price":45,"efficiency":15.0,"marketShare":1.11,"symbol":"MOTHE","workCount":2,"conversion":100.0,"rank":25,"metalPoints":30,"efficiencyBonus":15,"metalValue":45,"value":45},{"agency":"ABBOTT MEAD VICKERS BBDO","score":20,"medals":2,"trackedRows":2,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":1},"gp":0,"gold":0,"silver":1,"bronze":1,"price":30,"efficiency":10.0,"marketShare":0.74,"symbol":"ABBOT","workCount":1,"conversion":100.0,"rank":26,"metalPoints":20,"efficiencyBonus":10,"metalValue":30,"value":30},{"agency":"ALMAPBBDO","score":20,"medals":2,"trackedRows":2,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":1},"gp":0,"gold":0,"silver":1,"bronze":1,"price":30,"efficiency":10.0,"marketShare":0.74,"symbol":"ALMAP","workCount":2,"conversion":100.0,"rank":27,"metalPoints":20,"efficiencyBonus":10,"metalValue":30,"value":30},{"agency":"FRANK","score":20,"medals":2,"trackedRows":2,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":1},"gp":0,"gold":0,"silver":1,"bronze":1,"price":30,"efficiency":10.0,"marketShare":0.74,"symbol":"FRANK","workCount":1,"conversion":100.0,"rank":28,"metalPoints":20,"efficiencyBonus":10,"metalValue":30,"value":30},{"agency":"COURAGE","score":15,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"price":30,"efficiency":15.0,"marketShare":0.56,"symbol":"COURA","workCount":1,"conversion":100.0,"rank":29,"metalPoints":15,"efficiencyBonus":15,"metalValue":30,"value":30},{"agency":"DENTSU CREATIVE","score":15,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"price":30,"efficiency":15.0,"marketShare":0.56,"symbol":"DENTS","workCount":1,"conversion":100.0,"rank":30,"metalPoints":15,"efficiencyBonus":15,"metalValue":30,"value":30},{"agency":"DROGA5, PART OF ACCENTURE SONG","score":15,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"price":30,"efficiency":15.0,"marketShare":0.56,"symbol":"DROGA","workCount":1,"conversion":100.0,"rank":31,"metalPoints":15,"efficiencyBonus":15,"metalValue":30,"value":30},{"agency":"KLICK HEALTH","score":15,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"price":30,"efficiency":15.0,"marketShare":0.56,"symbol":"KLICK","workCount":1,"conversion":100.0,"rank":32,"metalPoints":15,"efficiencyBonus":15,"metalValue":30,"value":30},{"agency":"LEO HONG KONG","score":15,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"price":30,"efficiency":15.0,"marketShare":0.56,"symbol":"LHK","workCount":1,"conversion":100.0,"rank":33,"metalPoints":15,"efficiencyBonus":15,"metalValue":30,"value":30},{"agency":"LEO INDIA","score":15,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"price":30,"efficiency":15.0,"marketShare":0.56,"symbol":"LI","workCount":1,"conversion":100.0,"rank":34,"metalPoints":15,"efficiencyBonus":15,"metalValue":30,"value":30},{"agency":"McCANN","score":15,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"price":30,"efficiency":15.0,"marketShare":0.56,"symbol":"MCCAN","workCount":1,"conversion":100.0,"rank":35,"metalPoints":15,"efficiencyBonus":15,"metalValue":30,"value":30},{"agency":"NO FIXED ADDRESS","score":15,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"price":30,"efficiency":15.0,"marketShare":0.56,"symbol":"NFA","workCount":1,"conversion":100.0,"rank":36,"metalPoints":15,"efficiencyBonus":15,"metalValue":30,"value":30},{"agency":"OGILVY HEALTH","score":15,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"price":30,"efficiency":15.0,"marketShare":0.56,"symbol":"OGILV","workCount":1,"conversion":100.0,"rank":37,"metalPoints":15,"efficiencyBonus":15,"metalValue":30,"value":30},{"agency":"OGILVY SINGAPORE","score":15,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"price":30,"efficiency":15.0,"marketShare":0.56,"symbol":"OGILV","workCount":1,"conversion":100.0,"rank":38,"metalPoints":15,"efficiencyBonus":15,"metalValue":30,"value":30},{"agency":"PUBLICIS CANADA","score":15,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"price":30,"efficiency":15.0,"marketShare":0.56,"symbol":"PUBLI","workCount":1,"conversion":100.0,"rank":39,"metalPoints":15,"efficiencyBonus":15,"metalValue":30,"value":30},{"agency":"PUBLICIS KSA","score":15,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"price":30,"efficiency":15.0,"marketShare":0.56,"symbol":"PUBLI","workCount":1,"conversion":100.0,"rank":40,"metalPoints":15,"efficiencyBonus":15,"metalValue":30,"value":30},{"agency":"RADIO, TV AND TOURISM, CHINA, TBWA\\CHINA","score":15,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"price":30,"efficiency":15.0,"marketShare":0.56,"symbol":"RADIO","workCount":1,"conversion":100.0,"rank":41,"metalPoints":15,"efficiencyBonus":15,"metalValue":30,"value":30},{"agency":"THE GOOD COMPANY","score":15,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"price":30,"efficiency":15.0,"marketShare":0.56,"symbol":"TGC","workCount":1,"conversion":100.0,"rank":42,"metalPoints":15,"efficiencyBonus":15,"metalValue":30,"value":30},{"agency":"THE REFINERY","score":15,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"price":30,"efficiency":15.0,"marketShare":0.56,"symbol":"TR","workCount":1,"conversion":100.0,"rank":43,"metalPoints":15,"efficiencyBonus":15,"metalValue":30,"value":30},{"agency":"ALMA","score":15,"medals":3,"trackedRows":3,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":3},"gp":0,"gold":0,"silver":0,"bronze":3,"price":20,"efficiency":5.0,"marketShare":0.56,"symbol":"A","workCount":3,"conversion":100.0,"rank":44,"metalPoints":15,"efficiencyBonus":5,"metalValue":20,"value":20},{"agency":"JOE PUBLIC","score":15,"medals":3,"trackedRows":3,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":3},"gp":0,"gold":0,"silver":0,"bronze":3,"price":20,"efficiency":5.0,"marketShare":0.56,"symbol":"JP","workCount":3,"conversion":100.0,"rank":45,"metalPoints":15,"efficiencyBonus":5,"metalValue":20,"value":20},{"agency":"GREY","score":10,"medals":2,"trackedRows":2,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":2},"gp":0,"gold":0,"silver":0,"bronze":2,"price":15,"efficiency":5.0,"marketShare":0.37,"symbol":"G","workCount":2,"conversion":100.0,"rank":46,"metalPoints":10,"efficiencyBonus":5,"metalValue":15,"value":15},{"agency":"21GRAMS","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"21GRA","workCount":1,"conversion":100.0,"rank":47,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"4CREATIVE","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"4CREA","workCount":1,"conversion":100.0,"rank":48,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"BLKJ HAVAS","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"BH","workCount":1,"conversion":100.0,"rank":49,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"COLAS ICELAND","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"COLAS","workCount":1,"conversion":100.0,"rank":50,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"COLENSO BBDO","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"COLEN","workCount":1,"conversion":100.0,"rank":51,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"DENTSU INC.","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"DENTS","workCount":1,"conversion":100.0,"rank":52,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"FOUNDERS","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"FOUND","workCount":1,"conversion":100.0,"rank":53,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"HUMOUR ME","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"HUMOU","workCount":1,"conversion":100.0,"rank":54,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"INNOCEAN BERLIN","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"INNOC","workCount":1,"conversion":100.0,"rank":55,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"KNOWN","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"KNOWN","workCount":1,"conversion":100.0,"rank":56,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"L'OREAL","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"LO","workCount":1,"conversion":100.0,"rank":57,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"MARTIN","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"MARTI","workCount":1,"conversion":100.0,"rank":58,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"MEMAC OGILVY","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"MEMAC","workCount":1,"conversion":100.0,"rank":59,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"NOA AKESTAM HOLST","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"NAH","workCount":1,"conversion":100.0,"rank":60,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"PRIME WEBER SHANDWICK","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"PRIME","workCount":1,"conversion":100.0,"rank":61,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"ROMANCE","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"ROMAN","workCount":1,"conversion":100.0,"rank":62,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"SAATCHI & SAATCHI","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"SAATC","workCount":1,"conversion":100.0,"rank":63,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"SCHOLZ & FRIENDS","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"SCHOL","workCount":1,"conversion":100.0,"rank":64,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"TBWA PARIS","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"TP","workCount":1,"conversion":100.0,"rank":65,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"TBWA\\CHIAT\\DAY","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"TCD","workCount":1,"conversion":100.0,"rank":66,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"TBWA\\MEDIA ARTS LAB","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"TMAL","workCount":1,"conversion":100.0,"rank":67,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"THE LOCAL COLLECTIVE","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"TLC","workCount":1,"conversion":100.0,"rank":68,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"UNCLE GREY","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"UNCLE","workCount":1,"conversion":100.0,"rank":69,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10},{"agency":"UNITED IMAGINATIONS","score":5,"medals":1,"trackedRows":1,"portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"price":10,"efficiency":5.0,"marketShare":0.19,"symbol":"UNITE","workCount":1,"conversion":100.0,"rank":70,"metalPoints":5,"efficiencyBonus":5,"metalValue":10,"value":10}];
+    const state = { agencies: AGENCIES, sort:'value', search:'', expanded:null };
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+    const fmt = (n) => Number(n).toLocaleString('en-US');
+    function sortedAgencies(){
+      let list = [...state.agencies];
+      const q = state.search.trim().toLowerCase();
+      if(q) list = list.filter(a=>a.agency.toLowerCase().includes(q) || a.symbol.toLowerCase().includes(q));
+      if(state.sort === 'value') list.sort((a,b)=>b.metalValue-a.metalValue || b.efficiencyBonus-a.efficiencyBonus || b.gp-a.gp);
+      if(state.sort === 'efficiency') list.sort((a,b)=>b.efficiencyBonus-a.efficiencyBonus || b.metalValue-a.metalValue || b.gp-a.gp);
+      return list;
+    }
+    function portfolioHtml(p){
+      const parts = [];
+      if(p.gp) parts.push(`<span class="pill gp">GP×${p.gp}</span>`);
+      if(p.gold) parts.push(`<span class="pill gold">G×${p.gold}</span>`);
+      if(p.silver) parts.push(`<span class="pill silver">S×${p.silver}</span>`);
+      if(p.bronze) parts.push(`<span class="pill bronze">B×${p.bronze}</span>`);
+      return parts.join('') || '<span style="color:var(--muted)">—</span>';
+    }
+    function renderTicker(){
+      const top = [...state.agencies].sort((a,b)=>b.metalValue-a.metalValue).slice(0,14);
+      const html = top.map(a=>`<span class="ticker-item"><b>${a.symbol}</b><span class="value">${a.metalValue}</span><span class="bonus">+${a.efficiencyBonus}</span></span>`).join('');
+      $('#tickerTrack').innerHTML = html + html;
+    }
+    function renderRows(){
+      const list = sortedAgencies();
+      if(!list.length){ $('#rows').innerHTML = '<div class="empty">No agencies found.</div>'; return; }
+      const maxBonus = Math.max(...state.agencies.map(a=>a.efficiencyBonus));
+      $('#rows').innerHTML = list.map((a,i)=>{
+        const id = encodeURIComponent(a.agency);
+        const bonusWidth = maxBonus ? (a.efficiencyBonus / maxBonus) * 100 : 0;
+        return `<div class="row" data-id="${id}" tabindex="0" role="button" aria-expanded="${state.expanded===a.agency}"><div class="rank">${i+1}</div><div class="agency">${a.agency}</div><div class="num">${fmt(a.metalValue)}</div><div class="bonus-cell"><span>+${a.efficiencyBonus}</span><div class="bonus-bar"><i style="width:${bonusWidth}%"></i></div></div><div class="portfolio">${portfolioHtml(a.portfolio)}</div></div><div class="detail ${state.expanded===a.agency?'open':''}"><div class="detail-inner"><div class="stat"><div class="stat-label">Value</div><div class="stat-value">${fmt(a.metalValue)}</div></div><div class="stat"><div class="stat-label">Metal Points</div><div class="stat-value">${fmt(a.metalPoints)}</div></div><div class="stat"><div class="stat-label">Bonus</div><div class="stat-value">+${a.efficiencyBonus}</div></div><div class="stat"><div class="stat-label">Efficiency</div><div class="stat-value">${a.efficiency.toFixed(1)}</div></div><div class="stat"><div class="stat-label">Medals</div><div class="stat-value">${a.medals}</div></div><div class="stat"><div class="stat-label">GP count</div><div class="stat-value">${a.gp}</div></div></div></div>`;
+      }).join('');
+      $$('.row').forEach(row=>{
+        row.addEventListener('click',()=>toggleRow(row.dataset.id));
+        row.addEventListener('keydown',(e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); toggleRow(row.dataset.id); } });
+      });
+    }
+    function toggleRow(encoded){
+      const name = decodeURIComponent(encoded);
+      state.expanded = state.expanded === name ? null : name;
+      renderRows();
+    }
+    function render(){ renderTicker(); renderRows(); }
+    $$('.sort-button').forEach(btn=>{btn.addEventListener('click',()=>{state.sort = btn.dataset.sort;$$('.sort-button').forEach(b=>b.classList.toggle('active', b===btn));state.expanded = null;renderRows();});});
+    $('#search').addEventListener('input',(e)=>{ state.search = e.target.value; state.expanded = null; renderRows(); });
+    render();
+  </script>
+</body>
+</html>
