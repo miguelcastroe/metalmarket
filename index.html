@@ -1,3 +1,946 @@
+ChatGPT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Build a stock market-style agency leaderboard using real Cannes Lions 2026 data from Pablo Petovel's tracker at https://cannes26tracker.netlify.app/
+The tracker's HTML contains an embedded JSON object starting with {"meta": that includes a dicts object and a rows array. The row schema is:
+[award_idx, track_idx, agency_idx, brand_idx, category_idx, title_idx, link]
+The dicts.award array maps award indices to medal types:
+
+0 = Bronze
+2 = Creative Brand Grand Prix (counts as GP)
+3 = Gold
+4 = Grand Prix
+6 = Silver
+
+Exclude indices 1 (Creative Brand shortlist), 5 (Shortlist), and 7 (Submitted). Medals only.
+dicts.agency maps agency indices to agency names.
+Scoring: GP = 100 pts, Gold = 40 pts, Silver = 15 pts, Bronze = 5 pts. Share price = 1,000 + score. Efficiency = score ÷ medal entry count.
+Build an interactive exchange UI with:
+
+A scrolling ticker bar at the top showing agency symbols and simulated price changes
+A sortable table with columns: rank, agency name, share price, simulated % change with up/down arrow, medal portfolio (colored pills: GP, Gold, Silver, Bronze), efficiency score with a bar, sparkline trend
+Three sort modes: by price, by Grand Prix count, by efficiency
+A text search filter
+Click-to-expand row detail panel showing score, price, medal count, conversion rate, efficiency, GP count
+A color legend for medal types
+
+Design: flat, minimal, native to claude.ai. Use CSS variables for theming. No gradients or shadows. Medal pills: GP = warm gold on cream, Silver = gray, Bronze = warm brown. Positive change = green (#1a7f4e), negative = red (#c0392b).
+Data snapshot: June 22, 2026. Note in the footer that Golds were not yet awarded and link to cannes26tracker.netlify.app with credit to Pablo Petovel.
+
+It should look exactly like this
+And no data is showing
+
+
+cannes-2026-tracker-raw.json
+Archivo
+
+
+Pasted text(42).txt
+Documento
+
+needs a bit of padding up, is touching the line
+
+Pensó durante 6m 7s
+Updated.
+
+I layered in the Day 2 winners you pasted and kept the current rules:
+
+No network rollups
+
+Agency / office / city detail stays visible when available
+
+Value = Base Value + E
+
+E = Base Value ÷ entered cases, capped at +100 pts
+
+Momentum = arrow only, based on rank movement vs previous release
+
+I also updated the processed files and audit.
+
+Open updated prototype
+Download updated ZIP
+Processed JSON
+Processed CSV
+Agency name audit CSV
+
+
+
+No estamos especificando que la flecha es "momentum"
+
+↑3M "M" en superíndice
+
+Procesó durante 47s
+Hecho. Ahora Momentum se ve como:
+
+↑3ᴹ
+↓2ᴹ
+→ᴹ
+La M queda en superíndice, más silenciosa pero clara.
+
+Open updated prototype
+Download updated ZIP
+
+
+
+No ceo nada
+
+Procesó durante 43s
+Tenías razón: no se veía porque el HTML se había roto en el último update. Habían quedado tags mal cerrados tipo:
+
+< / script>
+< / style>
+Ya lo corregí y rearmé el ZIP.
+
+Open fixed prototype
+Download fixed ZIP
+
+
+
+Before continuing, let's see all the math
+
+Procesó durante 17s
+Absolutely. Here is the full math, cleanly.
+
+1. Unit of ranking
+We are ranking agency / office, not networks.
+
+So:
+
+VML New York ≠ VML Madrid ≠ VML Bangkok
+TBWA / Canada Toronto ≠ TBWA / Sydney
+When the data only gives a network name and no office can be confirmed, it stays as its own unresolved office entry, not merged into the global network.
+
+2. Eligible data
+Only metals count.
+
+Included:
+Grand Prix
+Gold
+Silver
+Bronze
+
+Excluded:
+Shortlist
+Submitted
+Creative Brand company-led winners
+3. Base Value
+Each metal has a fixed value:
+
+Grand Prix = 100 pts
+Gold       = 40 pts
+Silver     = 15 pts
+Bronze     = 5 pts
+Formula:
+
+Base Value =
+(GP × 100) + (Gold × 40) + (Silver × 15) + (Bronze × 5)
+Example:
+
+1 GP
+2 Silver
+3 Bronze
+
+Base Value =
+100 + 30 + 15
+= 145 pts
+4. Entered Cases
+This is the denominator for efficiency.
+
+Entered Cases = total cases entered by that same agency / office
+Not just winning cases.
+Not just metals.
+All cases attributed to that same agency / office in the tracker.
+
+5. Efficiency Bonus
+Efficiency is the value produced per entered case.
+
+Raw Efficiency = Base Value ÷ Entered Cases
+The bonus is rounded and capped at 100:
+
+E Bonus = round(Base Value ÷ Entered Cases)
+Maximum E Bonus = 100 pts
+Example:
+
+Base Value = 145
+Entered Cases = 5
+
+E Bonus =
+145 ÷ 5 = 29
+
+E: 29pts
+6. Final Value
+This is the main number in the market.
+
+Value = Base Value + E Bonus
+Example:
+
+Base Value = 145
+E Bonus = 29
+
+Value = 174
+So the table should read:
+
+Agency / Office      Value      Portfolio
+Agency X             174        GP×1  S×2  B×3  E:29pts
+7. By Value
+Sorts by final value:
+
+Value = Base Value + E Bonus
+Tie-breakers:
+
+Higher E Bonus
+Higher Base Value
+Higher GP count
+Alphabetical
+8. By Efficiency
+Sorts by the efficiency bonus:
+
+E Bonus = round(Base Value ÷ Entered Cases)
+This mode answers:
+
+Who got the most value from the fewest entered cases?
+
+Tie-breakers:
+
+Higher raw efficiency
+Higher final Value
+Alphabetical
+9. Momentum
+Momentum is not points and is not part of Value.
+
+It is only movement in rank versus the previous release.
+
+Momentum = Previous Rank - Current Rank
+Display logic:
+
+↑3ᴹ = moved up 3 rank positions
+↓2ᴹ = moved down 2 rank positions
+→ᴹ = stayed flat
+So:
+
+Value = monetary/value logic
+E = efficiency premium
+M = market movement
+The clean product sentence:
+
+Metals create value. Efficiency adds premium. Momentum shows rank movement.
+
+
+Maybe we dont need M but only rank?
+
+Yes. I think we don’t need M.
+
+Momentum is conceptually correct, but visually it adds another code the user has to learn. Since the product already has:
+
+Rank
+Agency / Office
+Value
+Portfolio
+the cleanest version is to let rank movement live in the rank column, not beside Value.
+
+So instead of:
+
+Value 174  ↑3ᴹ
+we do:
+
+#04 ↑3
+Agency / Office
+Value 174
+Portfolio
+Or even cleaner:
+
+04 ↑3   TBWA / CANADA TORONTO   174   GP×1 G×1 E:29pts
+Meaning:
+
+Rank = current market position
+
+↑3 / ↓2 / → = rank movement since previous release
+
+Value = actual score
+
+Portfolio = why the value exists
+
+Then the explanation becomes simpler:
+
+The rank shows market position. The arrow shows movement. Value shows performance.
+
+No “M”, no extra symbol system.
+
+I’d update the header from:
+
+Value / M
+to:
+
+Rank
+And show movement right next to the rank number. This feels more natural for a market table.
+
+
+So let's rewrite the math here to check iy
+
+Yes. Let’s lock the math like this.
+
+1. Ranking unit
+We rank agency / office, not network.
+
+VML New York
+VML Madrid
+VML Bangkok
+TBWA / Canada Toronto
+TBWA / Sydney
+Each one is its own market entry.
+
+2. Eligible results
+Only metals count toward value.
+
+Grand Prix
+Gold
+Silver
+Bronze
+No shortlist.
+No submitted.
+No network rollups.
+No company-led Creative Brand as agency.
+
+3. Metal Points
+Each metal has a fixed point value.
+
+Grand Prix = 100
+Gold       = 40
+Silver     = 15
+Bronze     = 5
+Formula:
+
+Metal Points =
+(GP × 100) + (Gold × 40) + (Silver × 15) + (Bronze × 5)
+Example:
+
+1 GP
+2 Silver
+3 Bronze
+
+Metal Points =
+100 + 30 + 15
+= 145
+4. Entered Cases
+This is all the work entered by that same agency / office.
+
+Entered Cases = total entries attributed to that agency / office
+Not just metals.
+Not just winning work.
+All entered cases from that office.
+
+5. Efficiency Bonus
+Efficiency is the premium for producing metal value with fewer entered cases.
+
+To avoid circular math, it uses Metal Points, not final Value.
+
+Raw Efficiency = Metal Points ÷ Entered Cases
+Then:
+
+E Bonus = round(Raw Efficiency)
+With a cap:
+
+Maximum E Bonus = +100 pts
+Example:
+
+Metal Points = 145
+Entered Cases = 5
+
+Raw Efficiency = 145 ÷ 5 = 29
+
+E Bonus = +29 pts
+6. Final Value
+This is the main number.
+
+Value = Metal Points + E Bonus
+Example:
+
+Metal Points = 145
+E Bonus = 29
+
+Value = 174
+So the row reads:
+
+Agency / Office       Value     Portfolio
+Agency X              174       GP×1  S×2  B×3  E:29pts
+7. Rank
+Rank is based on final Value.
+
+Rank = position after sorting by Value
+Tie-breakers:
+
+Higher Value
+Higher E Bonus
+Higher Metal Points
+Higher GP count
+Alphabetical
+8. Rank Movement
+We do not need “M”.
+
+Movement lives inside the rank column.
+
+Rank Movement = Previous Rank - Current Rank
+Display:
+
+04 ↑3
+04 ↓2
+04 →
+Meaning:
+
+↑3 = moved up 3 positions
+↓2 = moved down 2 positions
+→  = same position
+So the table becomes:
+
+Rank      Agency / Office              Value     Portfolio
+04 ↑3     TBWA / Canada Toronto         174       GP×1 G×1 E:29pts
+9. Sort modes
+Only two:
+
+By Value
+Sorts by final Value.
+
+By Efficiency
+Sorts by E Bonus.
+
+Clean product sentence:
+
+Metals create value. Efficiency adds premium. Rank shows market position and movement.
+
+
+Since we are not using Pablo's data anymore, I'm using a scraping tool by Google, we dont need to put it
+
+Procesó durante 36s
+Done. Removed the Pablo / cannes26tracker reference everywhere visible and updated the metadata language to the new source logic.
+
+Now it says:
+
+Source: Cannes Lions 2026 scraped winner dataset · Day 2 update included.
+Also updated the README and processed JSON so the package is consistent.
+
+Open updated prototype
+Download updated ZIP
+
+
+
+And now we dont have "M", it's just rank, I still see ↑87M
+
+Procesó durante 40s
+Fixed. Ya no aparece M en ningún lado.
+
+Ahora el movimiento queda solo en la columna Rank:
+
+1 ↑87
+2 ↓1
+3 →
+Y Value queda limpio, sin flecha ni código extra.
+
+Open updated prototype
+Download updated ZIP
+
+
+
+Yes but there's no 87, is just how many positions moved in the ranking (like ATP tennis ranking)
+
+Procesó durante 39s
+Correcto. El ↑87 venía de tratar a una agencia nueva como si hubiera estado al fondo del ranking anterior. Eso no es movimiento real.
+
+Ya lo corregí:
+
+04 ↑3  = subió 3 posiciones reales
+12 ↓2  = bajó 2 posiciones reales
+08 →   = se mantuvo
+15 NEW = no estaba rankeada en el release anterior
+Entonces las nuevas entradas ya no aparecen como ↑87, sino como NEW.
+
+Open updated prototype
+Download updated ZIP 
+
+
+
+I rather use triangles, keep the colors, and put them after the overall points
+
+Procesó durante 48s
+Done. Now rank movement uses triangles and sits after the overall Value, not in the rank column.
+
+Rank   Agency / Office        Value
+04     TBWA / CANADA TORONTO   174 ▲3
+12     GUT BUENOS AIRES        92 ▼2
+08     RETHINK CANADA          211 —
+Colors are preserved:
+green = moved up, red = moved down, grey = flat/new.
+
+Open updated prototype
+Download updated ZIP
+
+
+
+Y la marquesina si haría el score general de las networks
+
+Procesó durante 1m 39s
+Exacto. La tabla sigue siendo agency / office, pero la marquesina ahora es el score agregado por network / agency brand.
+
+Queda así:
+
+TBWA 366 ▲2
+VML 322 ▼1
+GUT 289 —
+DAVID 267 ▲1
+Y el ranking principal sigue limpio:
+
+Rank   Agency / Office          Value
+04     TBWA / CANADA TORONTO    174 ▲3
+También actualicé el footer para explicarlo: la marquesina agrega el score general por network / agency brand.
+
+Open updated prototype
+Download updated ZIP
+
+
+
+Only the Network agencies, and is the add up of all offices points
+
+Procesó durante 44s
+Done. Updated the footer source line to:
+
+Source: Cannes Lions 2026 scraped winner dataset by Miguel Castro · Day 2 update included.
+“Miguel Castro” now links to your portfolio.
+
+Open updated prototype
+Download updated ZIP
+
+
+
+Done. Hero now breaks into exactly two lines:
+
+The Metal Market
+Cannes Lions 2026
+Open updated prototype
+Download updated ZIP
+
+
+
+Network Score | and here goes the ticker
+
+Done. The top bar now reads as:
+
+Network Score | TBWA 366 ▲2   VML 322 ▼1   GUT 289 —
+The ticker sits directly after Network Score, separated by a vertical line.
+
+Open updated prototype
+Download updated ZIP
+
+
+
+Lets run a UX QA
+
+Procesó durante 2m 18s
+Good. UX QA pass on the current direction:
+
+What is working
+1. Product idea is now clear
+The split is good:
+
+Network Score = marquee / ticker
+Agency-office ranking = main table
+That solves the earlier tension between “don’t group offices” and “show network strength.”
+
+2. The hero is cleaner
+Two-line hero works:
+
+The Metal Market
+Cannes Lions 2026
+It feels like a product, not a dashboard.
+
+3. Rank movement after Value is the right place
+Putting movement after the overall points is more natural:
+
+174 ▲3
+92 ▼2
+211 —
+It reads like market movement, not a separate metric.
+
+4. The math is understandable
+The current system is explainable in one sentence:
+
+Metals create value. Efficiency adds premium. Movement shows ranking change.
+That is solid.
+
+UX issues to fix
+1. Header copy has a spacing bug
+
+Current structure likely reads too tightly:
+
+Agency / officeMetal value ranking
+Should become:
+
+Agency / office
+Metal value ranking
+or simply:
+
+Agency / office metal value ranking
+2. The legend says triangles, but flat uses a dash
+
+Current:
+
+▲ / ▼ after Value = rank movement
+But rows may show:
+
+211 —
+So the legend should say:
+
+▲ moved up · ▼ moved down · — unchanged / new
+Or we use a grey triangle / diamond for flat.
+
+3. “NEW” is conceptually useful, but visually maybe not
+
+For a market-style board, I would avoid text labels in the row. Better:
+
+174 ▲3
+92 ▼2
+211 —
+80 —
+Then in detail:
+
+Rank Move: New entry
+So the table stays clean.
+
+4. “By Efficiency” can confuse the Rank column
+
+When sorted by Efficiency, the Rank column still shows Value rank. That may be right, but it needs a small cue.
+
+Option A — keep current behavior:
+
+Rank = market rank always
+Sort = temporary view
+Then maybe label the column:
+
+Market Rank
+Option B — rank changes with sort mode:
+
+By Value = Value Rank
+By Efficiency = Efficiency Rank
+I think Option A is stronger because this is “The Metal Market,” not a generic sortable spreadsheet.
+
+5. The ticker needs a clearer denominator
+
+“Network Score” is good, but we should make sure the footer says:
+
+Network Score = sum of Value across ranked offices belonging to that network.
+That avoids ambiguity.
+
+Recommended lock
+I would lock the UX math/copy like this:
+
+Network Score | TBWA 366 ▲2   VML 322 ▼1   BBDO 301 —
+
+The Metal Market
+Cannes Lions 2026
+
+Agency / office metal value ranking
+
+Rank   Agency / Office          Value      Portfolio
+04     TBWA / CANADA TORONTO    174 ▲3     GP×1 G×1 E:29pts
+Footer:
+
+Value = Metal Points + E. E = rounded Metal Points ÷ entered cases, capped at +100 pts.
+▲ / ▼ after Value show rank movement vs previous release.
+Network Score = sum of Value across ranked offices belonging to that network.
+I’d fix those five UX issues before adding more features.
+
+
+Agree.
+Herro and footer needs a bit more air, everything is all tight, the same in the footer
+Network Score should show from leading to the last
+
+The title is too big and Network Score should show the ranking based on poits
+
+Procesó durante 44s
+Done. Updated the hero and copy:
+
+The Metal Market
+Cannes Lions 2026
+Metal value ranking
+—
+Day 2 update included
+Also tightened the movement language to just Rank movement:
+
+Rank movement: ▲ up · ▼ down · — flat/new
+And reduced the hero title size again.
+
+Open updated prototype
+Download updated ZIP
+
+
+
+Efficiency (E) = value ÷ entered cases, capped at +100 pts
+Efficiency (E) should be inside a green pill-like
+
+Procesó durante 52s
+Done. Updated the UI so Efficiency (E) appears as a green pill-like element in:
+
+legend
+
+footer formula
+
+expanded agency detail
+
+The copy now reads:
+
+Efficiency (E) = value ÷ entered cases, capped at +100 pts
+Open updated prototype
+Download updated ZIP
+
+
+
+— no movement
+
+The Metal Market (Inter font, 16px)
+Cannes Lions 2026 (Inter font, 14px)
+Metal value ranking (Inter font, 12px)
+
+Done. Updated:
+
+The Metal Market — Inter 16px
+Cannes Lions 2026 — Inter 14px
+Metal value ranking — Inter 12px
+—
+Day 2 update included
+And movement language now reads:
+
+Rank movement: ▲ up · ▼ down · — no movement
+Open updated prototype
+Download updated ZIP
+
+
+
+You didn't change the title font sizes as specified
+
+Al this can be inside a tooltip, well written explining the logics used:
+
+Value = Metal Points + E. Efficiency (E) = value ÷ entered cases, capped at +100 pts Rank movement appears after Value. Network Score ranks network agencies by total Value points, adding Value across all ranked offices belonging to each network.
+
+Procesó durante 57s
+Fixed properly now.
+
+Changes applied:
+
+Hero title sizes are exactly set:
+
+The Metal Market — Inter 16px
+
+Cannes Lions 2026 — Inter 14px
+
+Metal value ranking — Inter 12px
+
+The long methodology copy is no longer sitting in the footer.
+
+It now lives inside a compact Methodology tooltip.
+
+Footer is cleaner and only keeps the source line visible.
+
+Open updated prototype
+Download updated ZIP
+
+
+
+No necesitamos esto en el footer: Day 2 update included.
+Day 2 update included, necesita un ícono de calendario para distinguirlo
+Search necesita un poco más de espacio arriba y abajo
+Metal value ranking developed by Miguel Castro (link) @ 2026
+
+Hecho. También lo subí al hero, debajo del update:
+
+Day 2 update included
+Metal value ranking developed by Miguel Castro @ 2026
+Miguel Castro sigue linkeado a tu portfolio.
+
+Open updated prototype
+Download updated ZIP
+
+
+
+El footer debe decir la fuente de la data
+
+Hecho. El footer ahora dice la fuente de la data:
+
+Data source: Cannes Lions 2026 scraped winner dataset by Miguel Castro @ 2026
+Miguel Castro sigue linkeado a tu portfolio.
+
+Open updated prototype
+Download updated ZIP
+
+
+
+Data source: Cannes Lions 2026 scraped winner dataset by Miguel Castro @ 2026
+
+usando Google o algo así que suene tech
+
+
+
+lion-head.svg
+Archivo
+Pon este SVG al costado izqyuerio de The Metal Market
+
+Hecho. Puse el SVG al lado izquierdo de The Metal Market y lo incluí dentro del ZIP.
+
+Open updated prototype
+Download updated ZIP
+
+
+
+Hecho. Agregué en el hero:
+
+Updated on Day 2
+con ícono de calendario, debajo del crédito de Miguel Castro.
+
+Open updated prototype
+Download updated ZIP
+
+
+
+Solo falta darle un poco más de aire al hero, está todo muy pegado a la tabla
+
+El título de ser así:
+
+The Metal Market | Cannes Lions 2026
+Metal value ranking developed by Miguel Castro @ 2026
+
+Updated on Day 2... un poco más grande
+
+Hecho. El hero ahora queda como pediste:
+
+The Metal Market | Cannes Lions 2026
+Metal value ranking developed by Miguel Castro @ 2026
+
+● Updated on Day 2
+También hice Updated on Day 2 un poco más grande y con más presencia, manteniendo el punto verde pulsante.
+
+Open updated prototype
+Download updated ZIP
+
+
+
+También está listo para mobile?
+
+Procesó durante 1m 9s
+Casi. Está responsive, pero todavía no lo llamaría mobile-ready final.
+
+Lo que ya está bien:
+
+Tiene viewport correcto.
+
+El layout cambia en mobile.
+
+La tabla deja de comportarse como desktop y pasa a filas compactas.
+
+Portfolio baja a segunda línea cuando no entra.
+
+El ticker está contenido y no debería romper el ancho.
+
+Lo que ajustaría antes de decir “listo para mobile”:
+
+Hero mobile
+En desktop puede ir en una línea:
+
+The Metal Market | Cannes Lions 2026
+Pero en mobile debería poder partir más elegantemente si hace falta, sin sentirse apretado.
+
+Rows
+En mobile dejaría:
+
+Rank | Agency / Office | Value ▲3
+Portfolio abajo
+Eso ya está cerca, pero revisaría spacing y touch area.
+
+Detail expanded
+En mobile los cards del detail deberían pasar a una sola columna, no dos, para que no se sienta comprimido.
+
+Ticker
+Network Score está bien arriba, pero en mobile debe sentirse como ticker financiero compacto, no como header largo.
+
+Mi recomendación: hacer un mobile pass específico para 390px / 430px, sin cambiar el desktop. Ahí sí queda listo.
+
+
+Ok
+
+Procesó durante 38s
+Listo. Hice el mobile pass específico:
+
+Hero con mejor quiebre y aire en 390/430px.
+
+Ticker más compacto y lento en mobile.
+
+Search con más área táctil.
+
+Rows más legibles: rank, agency, value y portfolio respiran mejor.
+
+Detail expanded pasa a una sola columna en mobile.
+
+Footer y tooltip ajustados para no comprimirse.
+
+Validé el JavaScript y reconstruí el ZIP.
+
+Open updated prototype
+Download updated ZIP
+
+
+
+Ahora necesito la meta-data
+
+Procesó durante 1m 8s
+Listo. Agregué la metadata completa:
+
+SEO básico: title, description, author, robots, theme color.
+
+Open Graph para previews en LinkedIn/WhatsApp.
+
+Twitter Card.
+
+JSON-LD tipo dataset.
+
+Favicon usando el lion SVG.
+
+og-image.png generado para preview social.
+
+Queda pendiente solo una cosa para producción: cuando tengas la URL final del deploy, conviene agregar canonical, og:url y cambiar og:image a URL absoluta.
+
+Open updated prototype
+Download updated ZIP
+
+
+
+Ok, el link para Miguel Castro es: https://cannes.miguelcastro.works/pocket/
+
+Listo. Actualicé el link de Miguel Castro a:
+
+https://cannes.miguelcastro.works/pocket/
+También aproveché para poner esa URL como canonical, og:url, JSON-LD url, y dejé el og:image como URL absoluta para previews.
+
+Validé el JavaScript y reconstruí el ZIP.
+
+Open updated prototype
+Download updated ZIP
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -11,22 +954,24 @@
  <meta name="publisher" content="Miguel Castro" />
  <meta name="robots" content="index, follow" />
  <meta name="theme-color" content="#f6f6f4" />
+ <link rel="canonical" href="https://cannes.miguelcastro.works/pocket/" />
  <meta name="application-name" content="The Metal Market" />
  <meta name="apple-mobile-web-app-title" content="The Metal Market" />
  <link rel="icon" href="lion-head.svg" type="image/svg+xml" />
  <meta property="og:type" content="website" />
+ <meta property="og:url" content="https://cannes.miguelcastro.works/pocket/" />
  <meta property="og:site_name" content="The Metal Market" />
  <meta property="og:title" content="The Metal Market | Cannes Lions 2026" />
  <meta property="og:description" content="A Cannes Lions 2026 metal value ranking for agencies, offices and network scores, developed by Miguel Castro." />
- <meta property="og:image" content="og-image.png" />
+ <meta property="og:image" content="https://cannes.miguelcastro.works/pocket/og-image.png" />
  <meta property="og:image:width" content="1200" />
  <meta property="og:image:height" content="630" />
  <meta property="og:locale" content="en_US" />
  <meta name="twitter:card" content="summary_large_image" />
  <meta name="twitter:title" content="The Metal Market | Cannes Lions 2026" />
  <meta name="twitter:description" content="A Cannes Lions 2026 metal value ranking for agencies, offices and network scores, developed by Miguel Castro." />
- <meta name="twitter:image" content="og-image.png" />
- <script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset","name":"The Metal Market | Cannes Lions 2026","description":"A Cannes Lions 2026 metal value ranking for agencies, offices and network scores, developed by Miguel Castro.","creator":{"@type":"Person","name":"Miguel Castro","url":"https://miguelcastro.works/"},"publisher":{"@type":"Person","name":"Miguel Castro","url":"https://miguelcastro.works/"},"keywords":["Cannes Lions 2026","advertising awards","agency ranking","metal value ranking","network score"],"inLanguage":"en"}</script>
+ <meta name="twitter:image" content="https://cannes.miguelcastro.works/pocket/og-image.png" />
+ <script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset","name":"The Metal Market | Cannes Lions 2026","description":"A Cannes Lions 2026 metal value ranking for agencies, offices and network scores, developed by Miguel Castro.","creator":{"@type":"Person","name":"Miguel Castro","url":"https://cannes.miguelcastro.works/pocket/"},"publisher":{"@type":"Person","name":"Miguel Castro","url":"https://cannes.miguelcastro.works/pocket/"},"keywords":["Cannes Lions 2026","advertising awards","agency ranking","metal value ranking","network score"],"inLanguage":"en","url":"https://cannes.miguelcastro.works/pocket/","image":"https://cannes.miguelcastro.works/pocket/og-image.png"}</script>
  <style>
  :root{
  --bg:#f6f6f4;
@@ -205,7 +1150,7 @@
  <div class="ticker"><div class="wrap ticker-inner"><div class="ticker-label">Network Score</div><div class="ticker-separator"></div><div class="ticker-window"><div id="tickerTrack" class="ticker-track"></div></div></div></div>
  <main class="wrap">
  <header>
- <h1><span class="hero-headline"><img class="hero-logo" src="lion-head.svg" alt="" aria-hidden="true" /><span class="hero-line"><span class="hero-title">The Metal Market</span><span class="hero-divider">|</span><span class="hero-year">Cannes Lions 2026</span></span></span><span class="hero-sub">Metal value ranking developed by <a href="https://miguelcastro.works/" target="_blank" rel="noopener">Miguel Castro</a> @ 2026</span><span class="hero-update"><span class="live-dot" aria-hidden="true"></span>Updated on Day 2</span></h1>
+ <h1><span class="hero-headline"><img class="hero-logo" src="lion-head.svg" alt="" aria-hidden="true" /><span class="hero-line"><span class="hero-title">The Metal Market</span><span class="hero-divider">|</span><span class="hero-year">Cannes Lions 2026</span></span></span><span class="hero-sub">Metal value ranking developed by <a href="https://cannes.miguelcastro.works/pocket/" target="_blank" rel="noopener">Miguel Castro</a> @ 2026</span><span class="hero-update"><span class="live-dot" aria-hidden="true"></span>Updated on Day 2</span></h1>
  </header>
  <input id="search" class="search" placeholder="Search agency / office…" autocomplete="off" />
  <section class="sorts" aria-label="Sort modes">
@@ -229,7 +1174,7 @@
  <div><span class="method-tip" tabindex="0">Methodology
   <span class="tooltip"><b>Value</b> = Metal Points + Efficiency (E). <span class="line"><b>Efficiency (E)</b> = value ÷ entered cases, capped at +100 pts.</span> <span class="line"><b>Rank movement</b> appears after Value: ▲ up, ▼ down, — no movement.</span> <span class="line"><b>Network Score</b> ranks network agencies by total Value points, adding Value across all ranked offices belonging to each network.</span></span>
  </span></div>
- <div class="right">Data source: Cannes Lions 2026 winner dataset, collected via a Google-powered scraping workflow by <a href="https://miguelcastro.works/" target="_blank" rel="noopener">Miguel Castro</a> @ 2026</div>
+ <div class="right">Data source: Cannes Lions 2026 winner dataset, collected via a Google-powered scraping workflow by <a href="https://cannes.miguelcastro.works/pocket/" target="_blank" rel="noopener">Miguel Castro</a> @ 2026</div>
  </footer>
  <script>
  const AGENCIES = [{"agency":"JOHANNES LEONARDO NEW YORK / ADIDAS LONDON","portfolio":{"gp":2,"gold":0,"silver":0,"bronze":0},"latestPortfolio":{"gp":2,"gold":0,"silver":0,"bronze":0},"gp":2,"gold":0,"silver":0,"bronze":0,"metals":2,"metalPoints":200,"trackedRows":26,"enteredCases":1,"winningCases":2,"efficiency":200.0,"efficiencyBonus":100,"metalValue":300,"value":300,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":200,"momentum":300,"sourceNames":["JOHANNES LEONARDO","ADIDAS"],"symbol":"JLNYA","rank":1,"currentRank":1,"previousRank":88,"momentumRank":87},{"agency":"FALLON MINNEAPOLIS","portfolio":{"gp":1,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":1,"gold":0,"silver":1,"bronze":0,"metals":2,"metalPoints":115,"trackedRows":14,"enteredCases":1,"winningCases":2,"efficiency":115.0,"efficiencyBonus":100,"metalValue":215,"value":215,"baselineMetalPoints":115,"baselineEfficiencyBonus":100,"baselineValue":215,"latestMetalPoints":0,"momentum":0,"sourceNames":["FALLON"],"symbol":"FM","rank":2,"currentRank":2,"previousRank":1,"momentumRank":-1},{"agency":"RETHINK CANADA","portfolio":{"gp":1,"gold":2,"silver":0,"bronze":4},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":1,"gold":2,"silver":0,"bronze":4,"metals":7,"metalPoints":200,"trackedRows":122,"enteredCases":19,"winningCases":7,"efficiency":10.53,"efficiencyBonus":11,"metalValue":211,"value":211,"baselineMetalPoints":200,"baselineEfficiencyBonus":11,"baselineValue":211,"latestMetalPoints":0,"momentum":0,"sourceNames":["RETHINK"],"symbol":"RC","rank":3,"currentRank":3,"previousRank":2,"momentumRank":-1},{"agency":"DIFFER / COLONY","portfolio":{"gp":1,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":1,"gold":1,"silver":0,"bronze":0,"metals":2,"metalPoints":140,"trackedRows":11,"enteredCases":2,"winningCases":2,"efficiency":70.0,"efficiencyBonus":70,"metalValue":210,"value":210,"baselineMetalPoints":140,"baselineEfficiencyBonus":70,"baselineValue":210,"latestMetalPoints":0,"momentum":0,"sourceNames":["DIFFER"],"symbol":"DC","rank":4,"currentRank":4,"previousRank":3,"momentumRank":-1},{"agency":"ISLE OF ANY NEW YORK / MJZ","portfolio":{"gp":1,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":1,"gold":1,"silver":0,"bronze":0},"gp":1,"gold":1,"silver":0,"bronze":0,"metals":2,"metalPoints":140,"trackedRows":132,"enteredCases":2,"winningCases":2,"efficiency":70.0,"efficiencyBonus":70,"metalValue":210,"value":210,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":140,"momentum":210,"sourceNames":["ISLE OF ANY","MJZ"],"symbol":"IOANY","rank":5,"currentRank":5,"previousRank":92,"momentumRank":87},{"agency":"GUT SÃO PAULO","portfolio":{"gp":1,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":1,"gold":0,"silver":0,"bronze":1,"metals":2,"metalPoints":105,"trackedRows":18,"enteredCases":1,"winningCases":2,"efficiency":105.0,"efficiencyBonus":100,"metalValue":205,"value":205,"baselineMetalPoints":105,"baselineEfficiencyBonus":100,"baselineValue":205,"latestMetalPoints":0,"momentum":0,"sourceNames":["GUT"],"symbol":"GSP","rank":6,"currentRank":6,"previousRank":4,"momentumRank":-2},{"agency":"BBDO PUERTO RICO","portfolio":{"gp":1,"gold":0,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":1,"gold":0,"silver":0,"bronze":0,"metals":1,"metalPoints":100,"trackedRows":18,"enteredCases":1,"winningCases":1,"efficiency":100.0,"efficiencyBonus":100,"metalValue":200,"value":200,"baselineMetalPoints":100,"baselineEfficiencyBonus":100,"baselineValue":200,"latestMetalPoints":0,"momentum":0,"sourceNames":["BBDO PUERTO RICO"],"symbol":"BPR","rank":7,"currentRank":7,"previousRank":5,"momentumRank":-2},{"agency":"MCCANN LIMA","portfolio":{"gp":1,"gold":0,"silver":0,"bronze":0},"latestPortfolio":{"gp":1,"gold":0,"silver":0,"bronze":0},"gp":1,"gold":0,"silver":0,"bronze":0,"metals":1,"metalPoints":100,"trackedRows":1,"enteredCases":1,"winningCases":1,"efficiency":100.0,"efficiencyBonus":100,"metalValue":200,"value":200,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":100,"momentum":200,"sourceNames":["McCANN LIMA"],"symbol":"ML","rank":8,"currentRank":8,"previousRank":93,"momentumRank":85},{"agency":"APPLE IN-HOUSE / SOMESUCH","portfolio":{"gp":0,"gold":2,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":2,"silver":0,"bronze":0},"gp":0,"gold":2,"silver":0,"bronze":0,"metals":2,"metalPoints":80,"trackedRows":88,"enteredCases":1,"winningCases":2,"efficiency":80.0,"efficiencyBonus":80,"metalValue":160,"value":160,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":80,"momentum":160,"sourceNames":["APPLE","SOMESUCH"],"symbol":"AIHS","rank":9,"currentRank":9,"previousRank":96,"momentumRank":87},{"agency":"LEO UK","portfolio":{"gp":0,"gold":3,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":3,"silver":0,"bronze":0,"metals":3,"metalPoints":120,"trackedRows":3,"enteredCases":3,"winningCases":3,"efficiency":40.0,"efficiencyBonus":40,"metalValue":160,"value":160,"baselineMetalPoints":120,"baselineEfficiencyBonus":40,"baselineValue":160,"latestMetalPoints":0,"momentum":0,"sourceNames":["LEO"],"symbol":"LU","rank":10,"currentRank":10,"previousRank":6,"momentumRank":-4},{"agency":"DAVID NEW YORK","portfolio":{"gp":1,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":1,"gold":0,"silver":0,"bronze":1},"gp":1,"gold":0,"silver":0,"bronze":1,"metals":2,"metalPoints":105,"trackedRows":255,"enteredCases":2,"winningCases":2,"efficiency":52.5,"efficiencyBonus":52,"metalValue":157,"value":157,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":105,"momentum":157,"sourceNames":["DAVID"],"symbol":"DNY","rank":11,"currentRank":11,"previousRank":90,"momentumRank":79},{"agency":"CANADA BARCELONA / ROSALÍA BARCELONA","portfolio":{"gp":1,"gold":0,"silver":0,"bronze":0},"latestPortfolio":{"gp":1,"gold":0,"silver":0,"bronze":0},"gp":1,"gold":0,"silver":0,"bronze":0,"metals":1,"metalPoints":100,"trackedRows":4,"enteredCases":2,"winningCases":1,"efficiency":50.0,"efficiencyBonus":50,"metalValue":150,"value":150,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":100,"momentum":150,"sourceNames":["CANADA"],"symbol":"CBRB","rank":12,"currentRank":12,"previousRank":89,"momentumRank":77},{"agency":"LOLA MULLENLOWE MADRID","portfolio":{"gp":1,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":1,"gold":0,"silver":0,"bronze":0},"gp":1,"gold":1,"silver":0,"bronze":0,"metals":2,"metalPoints":140,"trackedRows":138,"enteredCases":33,"winningCases":2,"efficiency":4.24,"efficiencyBonus":4,"metalValue":144,"value":144,"baselineMetalPoints":40,"baselineEfficiencyBonus":1,"baselineValue":41,"latestMetalPoints":100,"momentum":103,"sourceNames":["LOLA"],"symbol":"LMM","rank":13,"currentRank":13,"previousRank":25,"momentumRank":12},{"agency":"BBH NEW YORK","portfolio":{"gp":0,"gold":3,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":3,"silver":0,"bronze":0,"metals":3,"metalPoints":120,"trackedRows":139,"enteredCases":32,"winningCases":3,"efficiency":3.75,"efficiencyBonus":4,"metalValue":124,"value":124,"baselineMetalPoints":120,"baselineEfficiencyBonus":4,"baselineValue":124,"latestMetalPoints":0,"momentum":0,"sourceNames":["BBH"],"symbol":"BNY","rank":14,"currentRank":14,"previousRank":7,"momentumRank":-7},{"agency":"SMUGGLER / UNCOMMON CREATIVE STUDIO","portfolio":{"gp":1,"gold":0,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":1,"gold":0,"silver":0,"bronze":0,"metals":1,"metalPoints":100,"trackedRows":18,"enteredCases":7,"winningCases":1,"efficiency":14.29,"efficiencyBonus":14,"metalValue":114,"value":114,"baselineMetalPoints":100,"baselineEfficiencyBonus":14,"baselineValue":114,"latestMetalPoints":0,"momentum":0,"sourceNames":["SMUGGLER"],"symbol":"SUCS","rank":15,"currentRank":15,"previousRank":8,"momentumRank":-7},{"agency":"LEPUB MILAN / LEPUB SÃO PAULO","portfolio":{"gp":0,"gold":1,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":1,"bronze":0,"metals":2,"metalPoints":55,"trackedRows":23,"enteredCases":1,"winningCases":2,"efficiency":55.0,"efficiencyBonus":55,"metalValue":110,"value":110,"baselineMetalPoints":55,"baselineEfficiencyBonus":55,"baselineValue":110,"latestMetalPoints":0,"momentum":0,"sourceNames":["LEPUB"],"symbol":"LMLSP","rank":16,"currentRank":16,"previousRank":9,"momentumRank":-7},{"agency":"TBWA / MEDIA ARTS LAB LOS ANGELES","portfolio":{"gp":1,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":1,"gold":0,"silver":0,"bronze":0},"gp":1,"gold":0,"silver":0,"bronze":1,"metals":2,"metalPoints":105,"trackedRows":144,"enteredCases":20,"winningCases":2,"efficiency":5.25,"efficiencyBonus":5,"metalValue":110,"value":110,"baselineMetalPoints":5,"baselineEfficiencyBonus":0,"baselineValue":5,"latestMetalPoints":100,"momentum":105,"sourceNames":["TBWA / MEDIA ARTS LAB"],"symbol":"TMALL","rank":17,"currentRank":17,"previousRank":78,"momentumRank":61},{"agency":"NORD STOCKHOLM","portfolio":{"gp":1,"gold":0,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":1,"gold":0,"silver":0,"bronze":0,"metals":1,"metalPoints":100,"trackedRows":108,"enteredCases":16,"winningCases":1,"efficiency":6.25,"efficiencyBonus":6,"metalValue":106,"value":106,"baselineMetalPoints":100,"baselineEfficiencyBonus":6,"baselineValue":106,"latestMetalPoints":0,"momentum":0,"sourceNames":["NORD"],"symbol":"NS","rank":18,"currentRank":18,"previousRank":10,"momentumRank":-8},{"agency":"GOOGLE CREATIVE TEAM MOUNTAIN VIEW","portfolio":{"gp":1,"gold":0,"silver":0,"bronze":0},"latestPortfolio":{"gp":1,"gold":0,"silver":0,"bronze":0},"gp":1,"gold":0,"silver":0,"bronze":0,"metals":1,"metalPoints":100,"trackedRows":69,"enteredCases":19,"winningCases":1,"efficiency":5.26,"efficiencyBonus":5,"metalValue":105,"value":105,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":100,"momentum":105,"sourceNames":["GOOGLE"],"symbol":"GCTMV","rank":19,"currentRank":19,"previousRank":91,"momentumRank":72},{"agency":"VML UNITED STATES","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":2},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":2,"metals":3,"metalPoints":50,"trackedRows":26,"enteredCases":1,"winningCases":3,"efficiency":50.0,"efficiencyBonus":50,"metalValue":100,"value":100,"baselineMetalPoints":50,"baselineEfficiencyBonus":50,"baselineValue":100,"latestMetalPoints":0,"momentum":0,"sourceNames":["VML"],"symbol":"VUS","rank":20,"currentRank":20,"previousRank":11,"momentumRank":-9},{"agency":"TBWA / CANADA TORONTO","portfolio":{"gp":0,"gold":2,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":2,"silver":0,"bronze":0,"metals":2,"metalPoints":80,"trackedRows":44,"enteredCases":5,"winningCases":2,"efficiency":16.0,"efficiencyBonus":16,"metalValue":96,"value":96,"baselineMetalPoints":40,"baselineEfficiencyBonus":8,"baselineValue":48,"latestMetalPoints":40,"momentum":48,"sourceNames":["TBWA / CANADA"],"symbol":"TCT","rank":21,"currentRank":21,"previousRank":23,"momentumRank":2},{"agency":"DAVID LONDON","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":1,"metals":2,"metalPoints":45,"trackedRows":19,"enteredCases":1,"winningCases":2,"efficiency":45.0,"efficiencyBonus":45,"metalValue":90,"value":90,"baselineMetalPoints":45,"baselineEfficiencyBonus":45,"baselineValue":90,"latestMetalPoints":0,"momentum":0,"sourceNames":["DAVID"],"symbol":"DL","rank":22,"currentRank":22,"previousRank":12,"momentumRank":-10},{"agency":"FUTUREBRAND SÃO PAULO","portfolio":{"gp":0,"gold":0,"silver":3,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":3,"bronze":0},"gp":0,"gold":0,"silver":3,"bronze":0,"metals":3,"metalPoints":45,"trackedRows":16,"enteredCases":1,"winningCases":3,"efficiency":45.0,"efficiencyBonus":45,"metalValue":90,"value":90,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":45,"momentum":90,"sourceNames":["FUTUREBRAND"],"symbol":"FSP","rank":23,"currentRank":23,"previousRank":103,"momentumRank":80},{"agency":"LOVELY RIO DE JANEIRO","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":1},"gp":0,"gold":1,"silver":0,"bronze":1,"metals":2,"metalPoints":45,"trackedRows":7,"enteredCases":1,"winningCases":2,"efficiency":45.0,"efficiencyBonus":45,"metalValue":90,"value":90,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":45,"momentum":90,"sourceNames":["LOVELY"],"symbol":"LRDJ","rank":24,"currentRank":24,"previousRank":110,"momentumRank":86},{"agency":"AWGE","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":0,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":80,"sourceNames":[],"symbol":"AWGE","rank":25,"currentRank":25,"previousRank":98,"momentumRank":73},{"agency":"CIRCUS GREY LIMA","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":22,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":80,"sourceNames":["CIRCUS GREY"],"symbol":"CGL","rank":26,"currentRank":26,"previousRank":99,"momentumRank":73},{"agency":"DAVID BOGOTÁ / DAVID MADRID","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":255,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":80,"sourceNames":["DAVID"],"symbol":"DBDM","rank":27,"currentRank":27,"previousRank":100,"momentumRank":73},{"agency":"GREY MÉXICO CIUDAD DE MÉXICO","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":164,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":80,"sourceNames":["GREY"],"symbol":"GMCDM","rank":28,"currentRank":28,"previousRank":104,"momentumRank":76},{"agency":"GUCCI IN-HOUSE / MJZ","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":77,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":80,"sourceNames":["MJZ"],"symbol":"GIHM","rank":29,"currentRank":29,"previousRank":105,"momentumRank":76},{"agency":"HEIMAT / TBWA BERLIN / CANADA / TEMPOMEDIA","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":44,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":80,"sourceNames":["HEIMAT / TBWA","CANADA","TEMPOMEDIA"],"symbol":"HTBCT","rank":30,"currentRank":30,"previousRank":107,"momentumRank":77},{"agency":"ISLE OF ANY NEW YORK / DAISY CHAIN STUDIO","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":55,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":80,"sourceNames":["ISLE OF ANY"],"symbol":"IOANY","rank":31,"currentRank":31,"previousRank":108,"momentumRank":77},{"agency":"MCCANN NEW YORK","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":1,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":80,"sourceNames":["McCANN NEW YORK"],"symbol":"MNY","rank":32,"currentRank":32,"previousRank":111,"momentumRank":79},{"agency":"MISCHIEF @ NO FIXED ADDRESS NEW YORK","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":23,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":80,"sourceNames":["MISCHIEF AT NO FIXED ADDRESS"],"symbol":"MNFAN","rank":33,"currentRank":33,"previousRank":112,"momentumRank":79},{"agency":"OGILVY / BOLDED / L'ORÉAL","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":535,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":80,"sourceNames":["OGILVY","BOLDED","L'OREAL"],"symbol":"OBLO","rank":34,"currentRank":34,"previousRank":113,"momentumRank":79},{"agency":"OGILVY SHANGHAI","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":13,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":40,"baselineEfficiencyBonus":40,"baselineValue":80,"latestMetalPoints":0,"momentum":0,"sourceNames":["OGILVY"],"symbol":"OS","rank":35,"currentRank":35,"previousRank":13,"momentumRank":-22},{"agency":"ON IN-HOUSE / MJZ LOS ANGELES","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":77,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":80,"sourceNames":["MJZ"],"symbol":"OIHML","rank":36,"currentRank":36,"previousRank":115,"momentumRank":79},{"agency":"TBWA / SYDNEY","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":15,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":40,"baselineEfficiencyBonus":40,"baselineValue":80,"latestMetalPoints":0,"momentum":0,"sourceNames":["TBWA / SYDNEY"],"symbol":"TS","rank":37,"currentRank":37,"previousRank":14,"momentumRank":-23},{"agency":"VML BANGKOK","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":11,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":40,"baselineEfficiencyBonus":40,"baselineValue":80,"latestMetalPoints":0,"momentum":0,"sourceNames":["VML"],"symbol":"VB","rank":38,"currentRank":38,"previousRank":15,"momentumRank":-23},{"agency":"VML NEW YORK / VML MADRID","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":985,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":80,"sourceNames":["VML"],"symbol":"VNYVM","rank":39,"currentRank":39,"previousRank":121,"momentumRank":82},{"agency":"VML NEW YORK / VML SÃO PAULO / VML MEXICO CITY","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":15,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":40,"baselineEfficiencyBonus":40,"baselineValue":80,"latestMetalPoints":0,"momentum":0,"sourceNames":["VML"],"symbol":"VNYVS","rank":40,"currentRank":40,"previousRank":16,"momentumRank":-24},{"agency":"VML POLAND WARSAW","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":985,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":80,"sourceNames":["VML"],"symbol":"VPW","rank":41,"currentRank":41,"previousRank":122,"momentumRank":81},{"agency":"WIEDEN+KENNEDY MEXICO","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":265,"enteredCases":1,"winningCases":1,"efficiency":40.0,"efficiencyBonus":40,"metalValue":80,"value":80,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":80,"sourceNames":["WIEDEN+KENNEDY"],"symbol":"WKM","rank":42,"currentRank":42,"previousRank":123,"momentumRank":81},{"agency":"PUBLICIS BRASIL","portfolio":{"gp":0,"gold":1,"silver":2,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":2,"bronze":0,"metals":3,"metalPoints":70,"trackedRows":121,"enteredCases":7,"winningCases":3,"efficiency":10.0,"efficiencyBonus":10,"metalValue":80,"value":80,"baselineMetalPoints":70,"baselineEfficiencyBonus":10,"baselineValue":80,"latestMetalPoints":0,"momentum":0,"sourceNames":["PUBLICIS BRASIL"],"symbol":"PB","rank":43,"currentRank":43,"previousRank":17,"momentumRank":-26},{"agency":"UNCOMMON CREATIVE STUDIO UK","portfolio":{"gp":0,"gold":0,"silver":4,"bronze":3},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":4,"bronze":3,"metals":7,"metalPoints":75,"trackedRows":133,"enteredCases":27,"winningCases":7,"efficiency":2.78,"efficiencyBonus":3,"metalValue":78,"value":78,"baselineMetalPoints":75,"baselineEfficiencyBonus":3,"baselineValue":78,"latestMetalPoints":0,"momentum":0,"sourceNames":["UNCOMMON CREATIVE STUDIO"],"symbol":"UCSU","rank":44,"currentRank":44,"previousRank":18,"momentumRank":-26},{"agency":"BETC FRANCE","portfolio":{"gp":0,"gold":1,"silver":1,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":1,"bronze":1,"metals":3,"metalPoints":60,"trackedRows":145,"enteredCases":29,"winningCases":3,"efficiency":2.07,"efficiencyBonus":2,"metalValue":62,"value":62,"baselineMetalPoints":60,"baselineEfficiencyBonus":2,"baselineValue":62,"latestMetalPoints":0,"momentum":0,"sourceNames":["BETC"],"symbol":"BF","rank":45,"currentRank":45,"previousRank":19,"momentumRank":-26},{"agency":"GUT CANADA","portfolio":{"gp":0,"gold":0,"silver":3,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":3,"bronze":0,"metals":3,"metalPoints":45,"trackedRows":3,"enteredCases":3,"winningCases":3,"efficiency":15.0,"efficiencyBonus":15,"metalValue":60,"value":60,"baselineMetalPoints":45,"baselineEfficiencyBonus":15,"baselineValue":60,"latestMetalPoints":0,"momentum":0,"sourceNames":["GUT"],"symbol":"GC","rank":46,"currentRank":46,"previousRank":20,"momentumRank":-26},{"agency":"MARCEL","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":1,"metals":2,"metalPoints":45,"trackedRows":54,"enteredCases":8,"winningCases":2,"efficiency":5.62,"efficiencyBonus":6,"metalValue":51,"value":51,"baselineMetalPoints":45,"baselineEfficiencyBonus":6,"baselineValue":51,"latestMetalPoints":0,"momentum":0,"sourceNames":["MARCEL"],"symbol":"MARCE","rank":47,"currentRank":47,"previousRank":21,"momentumRank":-26},{"agency":"LEPUB · OFFICE TBC","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":2},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":2,"metals":3,"metalPoints":50,"trackedRows":225,"enteredCases":42,"winningCases":3,"efficiency":1.19,"efficiencyBonus":1,"metalValue":51,"value":51,"baselineMetalPoints":50,"baselineEfficiencyBonus":1,"baselineValue":51,"latestMetalPoints":0,"momentum":0,"sourceNames":["LEPUB"],"symbol":"LOT","rank":48,"currentRank":48,"previousRank":22,"momentumRank":-26},{"agency":"INGO","portfolio":{"gp":0,"gold":0,"silver":3,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":3,"bronze":0,"metals":3,"metalPoints":45,"trackedRows":70,"enteredCases":14,"winningCases":3,"efficiency":3.21,"efficiencyBonus":3,"metalValue":48,"value":48,"baselineMetalPoints":45,"baselineEfficiencyBonus":3,"baselineValue":48,"latestMetalPoints":0,"momentum":0,"sourceNames":["INGO"],"symbol":"INGO","rank":49,"currentRank":49,"previousRank":24,"momentumRank":-25},{"agency":"GUT BUENOS AIRES","portfolio":{"gp":0,"gold":0,"silver":2,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":2,"bronze":1,"metals":3,"metalPoints":35,"trackedRows":17,"enteredCases":3,"winningCases":3,"efficiency":11.67,"efficiencyBonus":12,"metalValue":47,"value":47,"baselineMetalPoints":30,"baselineEfficiencyBonus":10,"baselineValue":40,"latestMetalPoints":5,"momentum":7,"sourceNames":["GUT"],"symbol":"GBA","rank":50,"currentRank":50,"previousRank":27,"momentumRank":-23},{"agency":"TRY OSLO","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":24,"enteredCases":6,"winningCases":1,"efficiency":6.67,"efficiencyBonus":7,"metalValue":47,"value":47,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":47,"sourceNames":["TRY"],"symbol":"TO","rank":51,"currentRank":51,"previousRank":119,"momentumRank":68},{"agency":"AKQA SWEDEN","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":46,"enteredCases":7,"winningCases":1,"efficiency":5.71,"efficiencyBonus":6,"metalValue":46,"value":46,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":46,"sourceNames":["AKQA"],"symbol":"AS","rank":52,"currentRank":52,"previousRank":94,"momentumRank":42},{"agency":"UNCOMMON CREATIVE STUDIO STOCKHOLM","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":35,"enteredCases":9,"winningCases":1,"efficiency":4.44,"efficiencyBonus":4,"metalValue":44,"value":44,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":44,"sourceNames":["UNCOMMON CREATIVE STUDIO STOCKHOLM"],"symbol":"UCSS","rank":53,"currentRank":53,"previousRank":120,"momentumRank":67},{"agency":"AFRICA CREATIVE","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":241,"enteredCases":33,"winningCases":1,"efficiency":1.21,"efficiencyBonus":1,"metalValue":41,"value":41,"baselineMetalPoints":40,"baselineEfficiencyBonus":1,"baselineValue":41,"latestMetalPoints":0,"momentum":0,"sourceNames":["AFRICA CREATIVE"],"symbol":"AC","rank":54,"currentRank":54,"previousRank":26,"momentumRank":-28},{"agency":"DENTSU INC. TOKYO","portfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"latestPortfolio":{"gp":0,"gold":1,"silver":0,"bronze":0},"gp":0,"gold":1,"silver":0,"bronze":0,"metals":1,"metalPoints":40,"trackedRows":150,"enteredCases":40,"winningCases":1,"efficiency":1.0,"efficiencyBonus":1,"metalValue":41,"value":41,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":40,"momentum":41,"sourceNames":["DENTSU INC."],"symbol":"DIT","rank":55,"currentRank":55,"previousRank":101,"momentumRank":46},{"agency":"JONES KNOWLES RITCHIE / GUT AMSTERDAM","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":1,"bronze":1},"gp":0,"gold":0,"silver":1,"bronze":1,"metals":2,"metalPoints":20,"trackedRows":316,"enteredCases":1,"winningCases":2,"efficiency":20.0,"efficiencyBonus":20,"metalValue":40,"value":40,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":20,"momentum":40,"sourceNames":["JONES KNOWLES RITCHIE","GUT"],"symbol":"JKRGA","rank":56,"currentRank":56,"previousRank":109,"momentumRank":53},{"agency":"HAVAS PARIS","portfolio":{"gp":0,"gold":0,"silver":2,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":2,"bronze":0,"metals":2,"metalPoints":30,"trackedRows":27,"enteredCases":5,"winningCases":2,"efficiency":6.0,"efficiencyBonus":6,"metalValue":36,"value":36,"baselineMetalPoints":30,"baselineEfficiencyBonus":6,"baselineValue":36,"latestMetalPoints":0,"momentum":0,"sourceNames":["HAVAS PARIS"],"symbol":"HP","rank":57,"currentRank":57,"previousRank":28,"momentumRank":-29},{"agency":"MOTHER UK","portfolio":{"gp":0,"gold":0,"silver":2,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":2,"bronze":0,"metals":2,"metalPoints":30,"trackedRows":109,"enteredCases":25,"winningCases":2,"efficiency":1.2,"efficiencyBonus":1,"metalValue":31,"value":31,"baselineMetalPoints":30,"baselineEfficiencyBonus":1,"baselineValue":31,"latestMetalPoints":0,"momentum":0,"sourceNames":["MOTHER"],"symbol":"MU","rank":58,"currentRank":58,"previousRank":29,"momentumRank":-29},{"agency":"LEO HONG KONG","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":16,"enteredCases":1,"winningCases":1,"efficiency":15.0,"efficiencyBonus":15,"metalValue":30,"value":30,"baselineMetalPoints":15,"baselineEfficiencyBonus":15,"baselineValue":30,"latestMetalPoints":0,"momentum":0,"sourceNames":["LEO HONG KONG"],"symbol":"LHK","rank":59,"currentRank":59,"previousRank":30,"momentumRank":-29},{"agency":"NO FIXED ADDRESS","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":6,"enteredCases":1,"winningCases":1,"efficiency":15.0,"efficiencyBonus":15,"metalValue":30,"value":30,"baselineMetalPoints":15,"baselineEfficiencyBonus":15,"baselineValue":30,"latestMetalPoints":0,"momentum":0,"sourceNames":["NO FIXED ADDRESS"],"symbol":"NFA","rank":60,"currentRank":60,"previousRank":31,"momentumRank":-29},{"agency":"OGILVY NETHERLANDS","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":4,"enteredCases":1,"winningCases":1,"efficiency":15.0,"efficiencyBonus":15,"metalValue":30,"value":30,"baselineMetalPoints":15,"baselineEfficiencyBonus":15,"baselineValue":30,"latestMetalPoints":0,"momentum":0,"sourceNames":["OGILVY"],"symbol":"ON","rank":61,"currentRank":61,"previousRank":32,"momentumRank":-29},{"agency":"PUBLICIS KSA","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":15,"enteredCases":1,"winningCases":1,"efficiency":15.0,"efficiencyBonus":15,"metalValue":30,"value":30,"baselineMetalPoints":15,"baselineEfficiencyBonus":15,"baselineValue":30,"latestMetalPoints":0,"momentum":0,"sourceNames":["PUBLICIS KSA"],"symbol":"PK","rank":62,"currentRank":62,"previousRank":33,"momentumRank":-29},{"agency":"THE REFINERY","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":2,"enteredCases":1,"winningCases":1,"efficiency":15.0,"efficiencyBonus":15,"metalValue":30,"value":30,"baselineMetalPoints":15,"baselineEfficiencyBonus":15,"baselineValue":30,"latestMetalPoints":0,"momentum":0,"sourceNames":["THE REFINERY"],"symbol":"TR","rank":63,"currentRank":63,"previousRank":34,"momentumRank":-29},{"agency":"VML MADRID","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":2,"enteredCases":1,"winningCases":1,"efficiency":15.0,"efficiencyBonus":15,"metalValue":30,"value":30,"baselineMetalPoints":15,"baselineEfficiencyBonus":15,"baselineValue":30,"latestMetalPoints":0,"momentum":0,"sourceNames":["VML"],"symbol":"VM","rank":64,"currentRank":64,"previousRank":35,"momentumRank":-29},{"agency":"VML SYDNEY","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":27,"enteredCases":1,"winningCases":1,"efficiency":15.0,"efficiencyBonus":15,"metalValue":30,"value":30,"baselineMetalPoints":15,"baselineEfficiencyBonus":15,"baselineValue":30,"latestMetalPoints":0,"momentum":0,"sourceNames":["VML"],"symbol":"VS","rank":65,"currentRank":65,"previousRank":36,"momentumRank":-29},{"agency":"LEPUB ITALY","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":1,"metals":2,"metalPoints":20,"trackedRows":22,"enteredCases":2,"winningCases":2,"efficiency":10.0,"efficiencyBonus":10,"metalValue":30,"value":30,"baselineMetalPoints":20,"baselineEfficiencyBonus":10,"baselineValue":30,"latestMetalPoints":0,"momentum":0,"sourceNames":["LEPUB"],"symbol":"LI","rank":66,"currentRank":66,"previousRank":37,"momentumRank":-29},{"agency":"VML UNITED KINGDOM","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":4},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":4,"metals":4,"metalPoints":20,"trackedRows":15,"enteredCases":4,"winningCases":4,"efficiency":5.0,"efficiencyBonus":5,"metalValue":25,"value":25,"baselineMetalPoints":20,"baselineEfficiencyBonus":5,"baselineValue":25,"latestMetalPoints":0,"momentum":0,"sourceNames":["VML"],"symbol":"VUK","rank":67,"currentRank":67,"previousRank":38,"momentumRank":-29},{"agency":"TBWA / CHINA","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":14,"enteredCases":2,"winningCases":1,"efficiency":7.5,"efficiencyBonus":8,"metalValue":23,"value":23,"baselineMetalPoints":15,"baselineEfficiencyBonus":8,"baselineValue":23,"latestMetalPoints":0,"momentum":0,"sourceNames":["RADIO, TV AND TOURISM, CHINA, TBWA / CHINA","TBWA / CHINA"],"symbol":"TC","rank":68,"currentRank":68,"previousRank":39,"momentumRank":-29},{"agency":"FRANK","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":1,"metals":2,"metalPoints":20,"trackedRows":68,"enteredCases":8,"winningCases":2,"efficiency":2.5,"efficiencyBonus":2,"metalValue":22,"value":22,"baselineMetalPoints":20,"baselineEfficiencyBonus":2,"baselineValue":22,"latestMetalPoints":0,"momentum":0,"sourceNames":["FRANK"],"symbol":"FRANK","rank":69,"currentRank":69,"previousRank":40,"momentumRank":-29},{"agency":"ABBOTT MEAD VICKERS BBDO","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":1,"metals":2,"metalPoints":20,"trackedRows":91,"enteredCases":17,"winningCases":2,"efficiency":1.18,"efficiencyBonus":1,"metalValue":21,"value":21,"baselineMetalPoints":20,"baselineEfficiencyBonus":1,"baselineValue":21,"latestMetalPoints":0,"momentum":0,"sourceNames":["ABBOTT MEAD VICKERS BBDO"],"symbol":"AMVB","rank":70,"currentRank":70,"previousRank":41,"momentumRank":-29},{"agency":"ALMAPBBDO","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":1,"metals":2,"metalPoints":20,"trackedRows":217,"enteredCases":29,"winningCases":2,"efficiency":0.69,"efficiencyBonus":1,"metalValue":21,"value":21,"baselineMetalPoints":20,"baselineEfficiencyBonus":1,"baselineValue":21,"latestMetalPoints":0,"momentum":0,"sourceNames":["ALMAPBBDO"],"symbol":"ALMAP","rank":71,"currentRank":71,"previousRank":42,"momentumRank":-29},{"agency":"THE GOOD COMPANY","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":14,"enteredCases":3,"winningCases":1,"efficiency":5.0,"efficiencyBonus":5,"metalValue":20,"value":20,"baselineMetalPoints":15,"baselineEfficiencyBonus":5,"baselineValue":20,"latestMetalPoints":0,"momentum":0,"sourceNames":["THE GOOD COMPANY"],"symbol":"TGC","rank":72,"currentRank":72,"previousRank":43,"momentumRank":-29},{"agency":"ALMA","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":3},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":3,"metals":3,"metalPoints":15,"trackedRows":26,"enteredCases":5,"winningCases":3,"efficiency":3.0,"efficiencyBonus":3,"metalValue":18,"value":18,"baselineMetalPoints":15,"baselineEfficiencyBonus":3,"baselineValue":18,"latestMetalPoints":0,"momentum":0,"sourceNames":["ALMA"],"symbol":"ALMA","rank":73,"currentRank":73,"previousRank":44,"momentumRank":-29},{"agency":"LEO INDIA","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":37,"enteredCases":7,"winningCases":1,"efficiency":2.14,"efficiencyBonus":2,"metalValue":17,"value":17,"baselineMetalPoints":15,"baselineEfficiencyBonus":2,"baselineValue":17,"latestMetalPoints":0,"momentum":0,"sourceNames":["LEO INDIA"],"symbol":"LI","rank":74,"currentRank":74,"previousRank":45,"momentumRank":-29},{"agency":"OGILVY HEALTH","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":60,"enteredCases":8,"winningCases":1,"efficiency":1.88,"efficiencyBonus":2,"metalValue":17,"value":17,"baselineMetalPoints":15,"baselineEfficiencyBonus":2,"baselineValue":17,"latestMetalPoints":0,"momentum":0,"sourceNames":["OGILVY HEALTH"],"symbol":"OH","rank":75,"currentRank":75,"previousRank":46,"momentumRank":-29},{"agency":"OGILVY SINGAPORE","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":72,"enteredCases":10,"winningCases":1,"efficiency":1.5,"efficiencyBonus":2,"metalValue":17,"value":17,"baselineMetalPoints":15,"baselineEfficiencyBonus":2,"baselineValue":17,"latestMetalPoints":0,"momentum":0,"sourceNames":["OGILVY SINGAPORE"],"symbol":"OS","rank":76,"currentRank":76,"previousRank":47,"momentumRank":-29},{"agency":"PUBLICIS CANADA","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":52,"enteredCases":8,"winningCases":1,"efficiency":1.88,"efficiencyBonus":2,"metalValue":17,"value":17,"baselineMetalPoints":15,"baselineEfficiencyBonus":2,"baselineValue":17,"latestMetalPoints":0,"momentum":0,"sourceNames":["PUBLICIS CANADA"],"symbol":"PC","rank":77,"currentRank":77,"previousRank":48,"momentumRank":-29},{"agency":"ALMAPBBDO SÃO PAULO","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":3},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":3},"gp":0,"gold":0,"silver":0,"bronze":3,"metals":3,"metalPoints":15,"trackedRows":217,"enteredCases":29,"winningCases":3,"efficiency":0.52,"efficiencyBonus":1,"metalValue":16,"value":16,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":15,"momentum":16,"sourceNames":["ALMAPBBDO"],"symbol":"ASP","rank":78,"currentRank":78,"previousRank":95,"momentumRank":17},{"agency":"ARTPLAN SÃO PAULO","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":55,"enteredCases":13,"winningCases":1,"efficiency":1.15,"efficiencyBonus":1,"metalValue":16,"value":16,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":15,"momentum":16,"sourceNames":["ARTPLAN"],"symbol":"ASP","rank":79,"currentRank":79,"previousRank":97,"momentumRank":18},{"agency":"COURAGE","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":79,"enteredCases":19,"winningCases":1,"efficiency":0.79,"efficiencyBonus":1,"metalValue":16,"value":16,"baselineMetalPoints":15,"baselineEfficiencyBonus":1,"baselineValue":16,"latestMetalPoints":0,"momentum":0,"sourceNames":["COURAGE"],"symbol":"COURA","rank":80,"currentRank":80,"previousRank":49,"momentumRank":-31},{"agency":"DENTSU CREATIVE","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":134,"enteredCases":16,"winningCases":1,"efficiency":0.94,"efficiencyBonus":1,"metalValue":16,"value":16,"baselineMetalPoints":15,"baselineEfficiencyBonus":1,"baselineValue":16,"latestMetalPoints":0,"momentum":0,"sourceNames":["DENTSU CREATIVE"],"symbol":"DC","rank":81,"currentRank":81,"previousRank":50,"momentumRank":-31},{"agency":"JOE PUBLIC","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":3},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":3,"metals":3,"metalPoints":15,"trackedRows":33,"enteredCases":21,"winningCases":3,"efficiency":0.71,"efficiencyBonus":1,"metalValue":16,"value":16,"baselineMetalPoints":15,"baselineEfficiencyBonus":1,"baselineValue":16,"latestMetalPoints":0,"momentum":0,"sourceNames":["JOE PUBLIC"],"symbol":"JP","rank":82,"currentRank":82,"previousRank":51,"momentumRank":-31},{"agency":"KLICK HEALTH","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":121,"enteredCases":13,"winningCases":1,"efficiency":1.15,"efficiencyBonus":1,"metalValue":16,"value":16,"baselineMetalPoints":15,"baselineEfficiencyBonus":1,"baselineValue":16,"latestMetalPoints":0,"momentum":0,"sourceNames":["KLICK HEALTH"],"symbol":"KH","rank":83,"currentRank":83,"previousRank":52,"momentumRank":-31},{"agency":"DROGA5, PART OF ACCENTURE SONG","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":188,"enteredCases":35,"winningCases":1,"efficiency":0.43,"efficiencyBonus":0,"metalValue":15,"value":15,"baselineMetalPoints":15,"baselineEfficiencyBonus":0,"baselineValue":15,"latestMetalPoints":0,"momentum":0,"sourceNames":["DROGA5, PART OF ACCENTURE SONG"],"symbol":"DPOAS","rank":84,"currentRank":84,"previousRank":53,"momentumRank":-31},{"agency":"GUT · OFFICE TBC","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":267,"enteredCases":48,"winningCases":1,"efficiency":0.31,"efficiencyBonus":0,"metalValue":15,"value":15,"baselineMetalPoints":15,"baselineEfficiencyBonus":0,"baselineValue":15,"latestMetalPoints":0,"momentum":0,"sourceNames":["GUT"],"symbol":"GOT","rank":85,"currentRank":85,"previousRank":54,"momentumRank":-31},{"agency":"McCANN","portfolio":{"gp":0,"gold":0,"silver":1,"bronze":0},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":1,"bronze":0,"metals":1,"metalPoints":15,"trackedRows":283,"enteredCases":41,"winningCases":1,"efficiency":0.37,"efficiencyBonus":0,"metalValue":15,"value":15,"baselineMetalPoints":15,"baselineEfficiencyBonus":0,"baselineValue":15,"latestMetalPoints":0,"momentum":0,"sourceNames":["McCANN"],"symbol":"MC","rank":86,"currentRank":86,"previousRank":55,"momentumRank":-31},{"agency":"COLAS ICELAND","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":6,"enteredCases":1,"winningCases":1,"efficiency":5.0,"efficiencyBonus":5,"metalValue":10,"value":10,"baselineMetalPoints":5,"baselineEfficiencyBonus":5,"baselineValue":10,"latestMetalPoints":0,"momentum":0,"sourceNames":["COLAS ICELAND"],"symbol":"CI","rank":87,"currentRank":87,"previousRank":56,"momentumRank":-31},{"agency":"DAVID COLOMBIA","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":6,"enteredCases":1,"winningCases":1,"efficiency":5.0,"efficiencyBonus":5,"metalValue":10,"value":10,"baselineMetalPoints":5,"baselineEfficiencyBonus":5,"baselineValue":10,"latestMetalPoints":0,"momentum":0,"sourceNames":["DAVID"],"symbol":"DC","rank":88,"currentRank":88,"previousRank":57,"momentumRank":-31},{"agency":"FOUNDERS","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":11,"enteredCases":1,"winningCases":1,"efficiency":5.0,"efficiencyBonus":5,"metalValue":10,"value":10,"baselineMetalPoints":5,"baselineEfficiencyBonus":5,"baselineValue":10,"latestMetalPoints":0,"momentum":0,"sourceNames":["FOUNDERS"],"symbol":"FOUND","rank":89,"currentRank":89,"previousRank":58,"momentumRank":-31},{"agency":"FRANK LONDON / DRUM BRASIL / MULLENLOWE / AREA 23","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":153,"enteredCases":1,"winningCases":1,"efficiency":5.0,"efficiencyBonus":5,"metalValue":10,"value":10,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":5,"momentum":10,"sourceNames":["FRANK","DRUM BRASIL","MULLENLOWE","AREA 23"],"symbol":"FLDBM","rank":90,"currentRank":90,"previousRank":102,"momentumRank":12},{"agency":"GUT MIAMI","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":305,"enteredCases":1,"winningCases":1,"efficiency":5.0,"efficiencyBonus":5,"metalValue":10,"value":10,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":5,"momentum":10,"sourceNames":["GUT"],"symbol":"GM","rank":91,"currentRank":91,"previousRank":106,"momentumRank":15},{"agency":"HUMOUR ME","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":1,"enteredCases":1,"winningCases":1,"efficiency":5.0,"efficiencyBonus":5,"metalValue":10,"value":10,"baselineMetalPoints":5,"baselineEfficiencyBonus":5,"baselineValue":10,"latestMetalPoints":0,"momentum":0,"sourceNames":["HUMOUR ME"],"symbol":"HM","rank":92,"currentRank":92,"previousRank":59,"momentumRank":-33},{"agency":"LEPUB BRAZIL","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":10,"enteredCases":1,"winningCases":1,"efficiency":5.0,"efficiencyBonus":5,"metalValue":10,"value":10,"baselineMetalPoints":5,"baselineEfficiencyBonus":5,"baselineValue":10,"latestMetalPoints":0,"momentum":0,"sourceNames":["LEPUB"],"symbol":"LB","rank":93,"currentRank":93,"previousRank":60,"momentumRank":-33},{"agency":"OGILVY CANADA","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":6,"enteredCases":1,"winningCases":1,"efficiency":5.0,"efficiencyBonus":5,"metalValue":10,"value":10,"baselineMetalPoints":5,"baselineEfficiencyBonus":5,"baselineValue":10,"latestMetalPoints":0,"momentum":0,"sourceNames":["OGILVY"],"symbol":"OC","rank":94,"currentRank":94,"previousRank":61,"momentumRank":-33},{"agency":"PRIME WEBER SHANDWICK","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":10,"enteredCases":1,"winningCases":1,"efficiency":5.0,"efficiencyBonus":5,"metalValue":10,"value":10,"baselineMetalPoints":5,"baselineEfficiencyBonus":5,"baselineValue":10,"latestMetalPoints":0,"momentum":0,"sourceNames":["PRIME WEBER SHANDWICK"],"symbol":"PWS","rank":95,"currentRank":95,"previousRank":62,"momentumRank":-33},{"agency":"ROMANCE","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":17,"enteredCases":1,"winningCases":1,"efficiency":5.0,"efficiencyBonus":5,"metalValue":10,"value":10,"baselineMetalPoints":5,"baselineEfficiencyBonus":5,"baselineValue":10,"latestMetalPoints":0,"momentum":0,"sourceNames":["ROMANCE"],"symbol":"ROMAN","rank":96,"currentRank":96,"previousRank":63,"momentumRank":-33},{"agency":"SLAP GLOBAL ARGENTINA","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":30,"enteredCases":1,"winningCases":1,"efficiency":5.0,"efficiencyBonus":5,"metalValue":10,"value":10,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":5,"momentum":10,"sourceNames":["SLAP GLOBAL"],"symbol":"SGA","rank":97,"currentRank":97,"previousRank":116,"momentumRank":19},{"agency":"TBWA / LINTAS / DUCKTAPE STUDIOS INDIA","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":0,"enteredCases":1,"winningCases":1,"efficiency":5.0,"efficiencyBonus":5,"metalValue":10,"value":10,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":5,"momentum":10,"sourceNames":["TBWA / LINTAS"],"symbol":"TLDSI","rank":98,"currentRank":98,"previousRank":117,"momentumRank":19},{"agency":"TOMBRAS BUENOS AIRES","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":51,"enteredCases":1,"winningCases":1,"efficiency":5.0,"efficiencyBonus":5,"metalValue":10,"value":10,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":5,"momentum":10,"sourceNames":["TOMBRAS"],"symbol":"TBA","rank":99,"currentRank":99,"previousRank":118,"momentumRank":19},{"agency":"GREY","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":2},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":2,"metals":2,"metalPoints":10,"trackedRows":164,"enteredCases":32,"winningCases":2,"efficiency":0.31,"efficiencyBonus":0,"metalValue":10,"value":10,"baselineMetalPoints":10,"baselineEfficiencyBonus":0,"baselineValue":10,"latestMetalPoints":0,"momentum":0,"sourceNames":["GREY"],"symbol":"GREY","rank":100,"currentRank":100,"previousRank":64,"momentumRank":-36},{"agency":"LEO · OFFICE TBC","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":2},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":2,"metals":2,"metalPoints":10,"trackedRows":173,"enteredCases":32,"winningCases":2,"efficiency":0.31,"efficiencyBonus":0,"metalValue":10,"value":10,"baselineMetalPoints":10,"baselineEfficiencyBonus":0,"baselineValue":10,"latestMetalPoints":0,"momentum":0,"sourceNames":["LEO"],"symbol":"LOT","rank":101,"currentRank":101,"previousRank":65,"momentumRank":-36},{"agency":"4CREATIVE","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":10,"enteredCases":2,"winningCases":1,"efficiency":2.5,"efficiencyBonus":2,"metalValue":7,"value":7,"baselineMetalPoints":5,"baselineEfficiencyBonus":2,"baselineValue":7,"latestMetalPoints":0,"momentum":0,"sourceNames":["4CREATIVE"],"symbol":"4CREA","rank":102,"currentRank":102,"previousRank":66,"momentumRank":-36},{"agency":"BLKJ HAVAS","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":19,"enteredCases":2,"winningCases":1,"efficiency":2.5,"efficiencyBonus":2,"metalValue":7,"value":7,"baselineMetalPoints":5,"baselineEfficiencyBonus":2,"baselineValue":7,"latestMetalPoints":0,"momentum":0,"sourceNames":["BLKJ HAVAS"],"symbol":"BH","rank":103,"currentRank":103,"previousRank":67,"momentumRank":-36},{"agency":"COLENSO BBDO","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":22,"enteredCases":2,"winningCases":1,"efficiency":2.5,"efficiencyBonus":2,"metalValue":7,"value":7,"baselineMetalPoints":5,"baselineEfficiencyBonus":2,"baselineValue":7,"latestMetalPoints":0,"momentum":0,"sourceNames":["COLENSO BBDO"],"symbol":"CB","rank":104,"currentRank":104,"previousRank":68,"momentumRank":-36},{"agency":"OGILVY INDIA","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":23,"enteredCases":3,"winningCases":1,"efficiency":1.67,"efficiencyBonus":2,"metalValue":7,"value":7,"baselineMetalPoints":5,"baselineEfficiencyBonus":2,"baselineValue":7,"latestMetalPoints":0,"momentum":0,"sourceNames":["OGILVY INDIA","OGILVY"],"symbol":"OI","rank":105,"currentRank":105,"previousRank":69,"momentumRank":-36},{"agency":"KNOWN","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":19,"enteredCases":4,"winningCases":1,"efficiency":1.25,"efficiencyBonus":1,"metalValue":6,"value":6,"baselineMetalPoints":5,"baselineEfficiencyBonus":1,"baselineValue":6,"latestMetalPoints":0,"momentum":0,"sourceNames":["KNOWN"],"symbol":"KNOWN","rank":106,"currentRank":106,"previousRank":70,"momentumRank":-36},{"agency":"L'OREAL","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":51,"enteredCases":6,"winningCases":1,"efficiency":0.83,"efficiencyBonus":1,"metalValue":6,"value":6,"baselineMetalPoints":5,"baselineEfficiencyBonus":1,"baselineValue":6,"latestMetalPoints":0,"momentum":0,"sourceNames":["L'OREAL"],"symbol":"LO","rank":107,"currentRank":107,"previousRank":71,"momentumRank":-36},{"agency":"MEMAC OGILVY","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":18,"enteredCases":6,"winningCases":1,"efficiency":0.83,"efficiencyBonus":1,"metalValue":6,"value":6,"baselineMetalPoints":5,"baselineEfficiencyBonus":1,"baselineValue":6,"latestMetalPoints":0,"momentum":0,"sourceNames":["MEMAC OGILVY"],"symbol":"MO","rank":108,"currentRank":108,"previousRank":72,"momentumRank":-36},{"agency":"OGILVY HEALTH NEW YORK","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":60,"enteredCases":8,"winningCases":1,"efficiency":0.62,"efficiencyBonus":1,"metalValue":6,"value":6,"baselineMetalPoints":0,"baselineEfficiencyBonus":0,"baselineValue":0,"latestMetalPoints":5,"momentum":6,"sourceNames":["OGILVY HEALTH"],"symbol":"OHNY","rank":109,"currentRank":109,"previousRank":114,"momentumRank":5},{"agency":"TBWA PARIS","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":50,"enteredCases":5,"winningCases":1,"efficiency":1.0,"efficiencyBonus":1,"metalValue":6,"value":6,"baselineMetalPoints":5,"baselineEfficiencyBonus":1,"baselineValue":6,"latestMetalPoints":0,"momentum":0,"sourceNames":["TBWA PARIS"],"symbol":"TP","rank":110,"currentRank":111,"previousRank":74,"momentumRank":-37},{"agency":"TBWA / CHIAT / DAY","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":59,"enteredCases":9,"winningCases":1,"efficiency":0.56,"efficiencyBonus":1,"metalValue":6,"value":6,"baselineMetalPoints":5,"baselineEfficiencyBonus":1,"baselineValue":6,"latestMetalPoints":0,"momentum":0,"sourceNames":["TBWA / CHIAT / DAY"],"symbol":"TCD","rank":111,"currentRank":110,"previousRank":73,"momentumRank":-37},{"agency":"THE LOCAL COLLECTIVE","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":10,"enteredCases":6,"winningCases":1,"efficiency":0.83,"efficiencyBonus":1,"metalValue":6,"value":6,"baselineMetalPoints":5,"baselineEfficiencyBonus":1,"baselineValue":6,"latestMetalPoints":0,"momentum":0,"sourceNames":["THE LOCAL COLLECTIVE"],"symbol":"TLC","rank":112,"currentRank":112,"previousRank":75,"momentumRank":-37},{"agency":"UNCLE GREY","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":30,"enteredCases":6,"winningCases":1,"efficiency":0.83,"efficiencyBonus":1,"metalValue":6,"value":6,"baselineMetalPoints":5,"baselineEfficiencyBonus":1,"baselineValue":6,"latestMetalPoints":0,"momentum":0,"sourceNames":["UNCLE GREY"],"symbol":"UG","rank":113,"currentRank":113,"previousRank":76,"momentumRank":-37},{"agency":"UNITED IMAGINATIONS","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":26,"enteredCases":7,"winningCases":1,"efficiency":0.71,"efficiencyBonus":1,"metalValue":6,"value":6,"baselineMetalPoints":5,"baselineEfficiencyBonus":1,"baselineValue":6,"latestMetalPoints":0,"momentum":0,"sourceNames":["UNITED IMAGINATIONS"],"symbol":"UI","rank":114,"currentRank":114,"previousRank":77,"momentumRank":-37},{"agency":"21GRAMS","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":23,"enteredCases":13,"winningCases":1,"efficiency":0.38,"efficiencyBonus":0,"metalValue":5,"value":5,"baselineMetalPoints":5,"baselineEfficiencyBonus":0,"baselineValue":5,"latestMetalPoints":0,"momentum":0,"sourceNames":["21GRAMS"],"symbol":"21GRA","rank":115,"currentRank":115,"previousRank":79,"momentumRank":-36},{"agency":"DENTSU INC.","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":150,"enteredCases":40,"winningCases":1,"efficiency":0.12,"efficiencyBonus":0,"metalValue":5,"value":5,"baselineMetalPoints":5,"baselineEfficiencyBonus":0,"baselineValue":5,"latestMetalPoints":0,"momentum":0,"sourceNames":["DENTSU INC."],"symbol":"DI","rank":116,"currentRank":116,"previousRank":80,"momentumRank":-36},{"agency":"INNOCEAN BERLIN","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":42,"enteredCases":12,"winningCases":1,"efficiency":0.42,"efficiencyBonus":0,"metalValue":5,"value":5,"baselineMetalPoints":5,"baselineEfficiencyBonus":0,"baselineValue":5,"latestMetalPoints":0,"momentum":0,"sourceNames":["INNOCEAN BERLIN"],"symbol":"IB","rank":117,"currentRank":117,"previousRank":81,"momentumRank":-36},{"agency":"MARTIN","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":57,"enteredCases":13,"winningCases":1,"efficiency":0.38,"efficiencyBonus":0,"metalValue":5,"value":5,"baselineMetalPoints":5,"baselineEfficiencyBonus":0,"baselineValue":5,"latestMetalPoints":0,"momentum":0,"sourceNames":["MARTIN"],"symbol":"MARTI","rank":118,"currentRank":118,"previousRank":82,"momentumRank":-36},{"agency":"NOA AKESTAM HOLST","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":42,"enteredCases":11,"winningCases":1,"efficiency":0.45,"efficiencyBonus":0,"metalValue":5,"value":5,"baselineMetalPoints":5,"baselineEfficiencyBonus":0,"baselineValue":5,"latestMetalPoints":0,"momentum":0,"sourceNames":["NOA AKESTAM HOLST"],"symbol":"NAH","rank":119,"currentRank":119,"previousRank":83,"momentumRank":-36},{"agency":"OGILVY · OFFICE TBC","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":431,"enteredCases":81,"winningCases":1,"efficiency":0.06,"efficiencyBonus":0,"metalValue":5,"value":5,"baselineMetalPoints":5,"baselineEfficiencyBonus":0,"baselineValue":5,"latestMetalPoints":0,"momentum":0,"sourceNames":["OGILVY"],"symbol":"OOT","rank":120,"currentRank":120,"previousRank":84,"momentumRank":-36},{"agency":"SAATCHI & SAATCHI","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":106,"enteredCases":27,"winningCases":1,"efficiency":0.19,"efficiencyBonus":0,"metalValue":5,"value":5,"baselineMetalPoints":5,"baselineEfficiencyBonus":0,"baselineValue":5,"latestMetalPoints":0,"momentum":0,"sourceNames":["SAATCHI & SAATCHI"],"symbol":"SS","rank":121,"currentRank":121,"previousRank":85,"momentumRank":-36},{"agency":"SCHOLZ & FRIENDS","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":92,"enteredCases":24,"winningCases":1,"efficiency":0.21,"efficiencyBonus":0,"metalValue":5,"value":5,"baselineMetalPoints":5,"baselineEfficiencyBonus":0,"baselineValue":5,"latestMetalPoints":0,"momentum":0,"sourceNames":["SCHOLZ & FRIENDS"],"symbol":"SF","rank":122,"currentRank":122,"previousRank":86,"momentumRank":-36},{"agency":"VML · OFFICE TBC","portfolio":{"gp":0,"gold":0,"silver":0,"bronze":1},"latestPortfolio":{"gp":0,"gold":0,"silver":0,"bronze":0},"gp":0,"gold":0,"silver":0,"bronze":1,"metals":1,"metalPoints":5,"trackedRows":889,"enteredCases":124,"winningCases":1,"efficiency":0.04,"efficiencyBonus":0,"metalValue":5,"value":5,"baselineMetalPoints":5,"baselineEfficiencyBonus":0,"baselineValue":5,"latestMetalPoints":0,"momentum":0,"sourceNames":["VML"],"symbol":"VOT","rank":123,"currentRank":123,"previousRank":87,"momentumRank":-36}];
@@ -403,3 +1348,4 @@
  </script>
 </body>
 </html>
+
